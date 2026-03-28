@@ -409,9 +409,37 @@
       const siswa = globalData[index];
       document.getElementById('modalTitle').textContent = `Detail: ${siswa.nama} (${siswa.kelas})`;
       
-      const formatJSON = (obj) => {
-        if(!obj) return "<i>Data tidak tersedia (Versi lama)</i>";
-        return `<div class="json-tree">${JSON.stringify(obj, null, 2)}</div>`;
+      const formatAngket = (obj) => {
+        if(!obj || !obj.kecemasan) return "<i>Data tidak tersedia (Versi lama)</i>";
+        const valMap = { 'SS': 'Sangat Setuju', 'S': 'Setuju', 'TS': 'Tidak Setuju', 'STS': 'Sangat Tidak Setuju' };
+        
+        let html = '<div style="display:flex; flex-direction:column; gap:10px; font-size:0.8rem;">';
+        
+        html += '<div><span style="font-weight:700; color:var(--primary);">Kecemasan Matematis</span><ul style="padding-left:15px; margin-top:4px; margin-bottom:0; color:#444; list-style:square;">';
+        for(let k in obj.kecemasan) { html += `<li style="margin-bottom:2px;">Soal ${k.toUpperCase()}: <b>${valMap[obj.kecemasan[k]] || obj.kecemasan[k]}</b></li>`; }
+        html += '</ul></div>';
+
+        html += '<div><span style="font-weight:700; color:var(--primary);">Motivasi Intrinsik</span><ul style="padding-left:15px; margin-top:4px; margin-bottom:0; color:#444; list-style:square;">';
+        for(let m in obj.motivasi) { html += `<li style="margin-bottom:2px;">Soal ${m.toUpperCase()}: <b>${valMap[obj.motivasi[m]] || obj.motivasi[m]}</b></li>`; }
+        html += '</ul></div></div>';
+        return html;
+      };
+
+      const formatDimensi = (obj) => {
+        if(!obj) return "<i>Data tidak tersedia</i>";
+        let html = '<div style="display:flex; flex-direction:column; gap:12px; font-size:0.8rem; color:#444;">';
+        if(obj.preK_dim) {
+           html += '<div><span style="font-weight:700;">Skor Dimensi (Pre-Test)</span><ul style="margin-top:2px; padding-left:15px;">';
+           for(let d in obj.preK_dim) { html += `<li>${d}: <b>${obj.preK_dim[d].skor}</b> / ${obj.preK_dim[d].max}</li>`; }
+           html += '</ul></div>';
+        }
+        if(obj.postK_dim) {
+           html += '<div><span style="font-weight:700;">Skor Dimensi (Post-Test)</span><ul style="margin-top:2px; padding-left:15px;">';
+           for(let d in obj.postK_dim) { html += `<li>${d}: <b>${obj.postK_dim[d].skor}</b> / ${obj.postK_dim[d].max}</li>`; }
+           html += '</ul></div>';
+        }
+        html += '</div>';
+        return html;
       };
 
       const formatPikiran = (arr) => {
@@ -436,17 +464,17 @@
         <div class="detail-section" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; background:transparent; border:none; padding:0;">
           <div class="detail-section" style="margin:0;">
             <h4>📋 Pilihan Jawaban Pre-Test</h4>
-            ${formatJSON(siswa.jawaban_pre)}
+            ${formatAngket(siswa.jawaban_pre)}
           </div>
           <div class="detail-section" style="margin:0;">
             <h4>📋 Pilihan Jawaban Post-Test</h4>
-            ${formatJSON(siswa.jawaban_post)}
+            ${formatAngket(siswa.jawaban_post)}
           </div>
         </div>
         
         <div class="detail-section">
           <h4>📊 Akumulasi Dimensi (Analisis Sistem)</h4>
-          ${formatJSON(siswa.detil_dimensi)}
+          ${formatDimensi(siswa.detil_dimensi)}
         </div>
       `;
 
