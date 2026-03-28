@@ -386,8 +386,9 @@
             <span class="badge ${motivBadge}">${selisihMotivasi > 0 ? 'Naik '+selisihMotivasi : selisihMotivasi}</span>
           </td>
           <td>${row.emosi_awal} → ${row.emosi_akhir}</td>
-          <td>
-            <button class="btn btn-outline btn-small" onclick="bukaModal(${i})">Lihat Detail</button>
+          <td style="display:flex; gap:8px;">
+            <button class="btn btn-outline btn-small" onclick="bukaModal(${i})">Detail</button>
+            <button class="btn btn-outline btn-small" style="color:var(--accent); border-color:var(--accent);" onclick="hapusData('${row.id}', '${row.nama}')">Hapus</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -454,6 +455,26 @@
 
     function tutupModal() {
       document.getElementById('detailModal').classList.add('hidden');
+    }
+
+    // Fungsi Hapus Data
+    async function hapusData(id, nama) {
+      if(!confirm(`Apakah Anda yakin ingin menghapus data atas nama ${nama}? Tindakan ini tidak dapat dibatalkan.`)) return;
+      
+      try {
+        const { error } = await supabaseClient
+          .from('cbt_results')
+          .delete()
+          .eq('id', id);
+          
+        if (error) throw error;
+        
+        alert("Data berhasil dihapus.");
+        loadData(); // Memuat ulang tabel setelah dihapus
+      } catch (err) {
+        console.error("Gagal menghapus data:", err);
+        alert("Gagal menghapus data. Pastikan Anda sudah menjalankan perintah HAPUS (DELETE) Policy di Supabase SQL Editor.");
+      }
     }
 
     // Export Logic

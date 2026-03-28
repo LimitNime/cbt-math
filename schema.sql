@@ -36,3 +36,9 @@ CREATE POLICY "Anon can select cbt_results"
     ON public.cbt_results 
     FOR SELECT 
     USING (true);
+
+-- Membuat kebijakan anonim agar Anda bisa menghapus data (DELETE) dari Admin Dashboard
+CREATE POLICY "Anon can delete cbt_results" 
+    ON public.cbt_results 
+    FOR DELETE
+    USING (true);
