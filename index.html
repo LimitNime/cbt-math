@@ -2796,7 +2796,11 @@
         emosi_awal: state.emosiAwalNama,
         emosi_akhir: state.emosiAkhirNama,
         skor_kuis: pctSoal,
-        detil_dimensi: { preK_dim: hitungSkorPerDimensi(state.preKecemasan, angketKecemasanData), postK_dim: postKDimensi }
+        detil_dimensi: { preK_dim: hitungSkorPerDimensi(state.preKecemasan, angketKecemasanData), postK_dim: postKDimensi },
+        jawaban_pre: { kecemasan: state.preKecemasan, motivasi: state.preMotivasi },
+        jawaban_post: { kecemasan: state.postKecemasan, motivasi: state.postMotivasi },
+        pikiran_dipilih: state.pikiranDipilih,
+        afirmasi_dipilih: state.afirmasiDipilih
       });
 
       tampilModal(
