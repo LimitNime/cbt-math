@@ -252,7 +252,7 @@
     // ══ SUPABASE INIT ══
     const SUPABASE_URL = 'https://rfdcbxhqqdmrfhlzngdf.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmZGNieGhxcWRtcmZobHpuZ2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3MDgyNTksImV4cCI6MjA5MDI4NDI1OX0.UFsyCgIcFaPvHYdZKw7aPH5-U3e43ZmwYQsCfAZnlbo';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let globalData = [];
 
@@ -261,7 +261,7 @@
       document.getElementById('dashboardContent').classList.add('hidden');
       
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from('cbt_results')
           .select('*')
           .order('created_at', { ascending: false });
