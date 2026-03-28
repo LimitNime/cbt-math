@@ -445,7 +445,10 @@
       const formatPikiran = (arr) => {
         if(!arr || !arr.length) return "<i>Data tidak tersedia (Versi lama)</i>";
         return `<ul style="margin-left:20px; font-size:0.85rem; line-height:1.6; color:#444;">` + 
-               arr.map(p => `<li>${p}</li>`).join('') + `</ul>`;
+               arr.map(p => {
+                 let txt = typeof p === 'object' ? (p.teks || p.text || JSON.stringify(p)) : p;
+                 return `<li>${txt}</li>`;
+               }).join('') + `</ul>`;
       };
 
       document.getElementById('modalBody').innerHTML = `
@@ -509,36 +512,46 @@
     function exportToExcel() {
       if(globalData.length === 0) return alert("Tidak ada data untuk di eksport.");
 
-      const excelData = globalData.map((row, index) => ({
-        'No': index + 1,
-        'Waktu': new Date(row.created_at).toLocaleString('id-ID'),
-        'Nama Lengkap': row.nama,
-        'Kelas': row.kelas,
-        'Sekolah': row.sekolah,
-        'Kecemasan (Pre)': row.skor_pre_kecemasan,
-        'Kecemasan (Post)': row.skor_post_kecemasan,
-        'Selisih Kecemasan': row.skor_pre_kecemasan - row.skor_post_kecemasan,
-        'Motivasi (Pre)': row.skor_pre_motivasi,
-        'Motivasi (Post)': row.skor_post_motivasi,
-        'Selisih Motivasi': row.skor_post_motivasi - row.skor_pre_motivasi,
-        'Emosi Awal': row.emosi_awal,
-        'Emosi Akhir': row.emosi_akhir,
-        'Skor Kuis (%)': row.skor_kuis,
-        'Pikiran Negatif Terpilih': row.pikiran_dipilih ? row.pikiran_dipilih.join(" | ") : "-",
-        'Afirmasi Positif': row.afirmasi_dipilih || "-",
-        'Raw Pre (JSON)': JSON.stringify(row.jawaban_pre || {}),
-        'Raw Post (JSON)': JSON.stringify(row.jawaban_post || {})
-      }));
+      const excelData = globalData.map((row, index) => {
+        let baseRow = {
+          'No': index + 1,
+          'Waktu': new Date(row.created_at).toLocaleString('id-ID'),
+          'Nama Lengkap': row.nama,
+          'Kelas': row.kelas,
+          'Sekolah': row.sekolah,
+          'Kecemasan (Pre)': row.skor_pre_kecemasan,
+          'Kecemasan (Post)': row.skor_post_kecemasan,
+          'Selisih Kecemasan': row.skor_pre_kecemasan - row.skor_post_kecemasan,
+          'Motivasi (Pre)': row.skor_pre_motivasi,
+          'Motivasi (Post)': row.skor_post_motivasi,
+          'Selisih Motivasi': row.skor_post_motivasi - row.skor_pre_motivasi,
+          'Emosi Awal': row.emosi_awal,
+          'Emosi Akhir': row.emosi_akhir,
+          'Skor Kuis (%)': row.skor_kuis,
+          'Pikiran Negatif Terpilih': row.pikiran_dipilih ? row.pikiran_dipilih.map(p => typeof p === 'object' ? (p.teks || p.text || JSON.stringify(p)) : p).join(" | ") : "-",
+          'Afirmasi Positif': row.afirmasi_dipilih || "-"
+        };
+
+        if (row.jawaban_pre) {
+          if (row.jawaban_pre.kecemasan) {
+            Object.keys(row.jawaban_pre.kecemasan).forEach(k => { baseRow[`Pre Cemas (${k.toUpperCase()})`] = row.jawaban_pre.kecemasan[k]; });
+          }
+          if (row.jawaban_pre.motivasi) {
+            Object.keys(row.jawaban_pre.motivasi).forEach(m => { baseRow[`Pre Motivasi (${m.toUpperCase()})`] = row.jawaban_pre.motivasi[m]; });
+          }
+        }
+        if (row.jawaban_post) {
+          if (row.jawaban_post.kecemasan) {
+            Object.keys(row.jawaban_post.kecemasan).forEach(k => { baseRow[`Post Cemas (${k.toUpperCase()})`] = row.jawaban_post.kecemasan[k]; });
+          }
+          if (row.jawaban_post.motivasi) {
+            Object.keys(row.jawaban_post.motivasi).forEach(m => { baseRow[`Post Motivasi (${m.toUpperCase()})`] = row.jawaban_post.motivasi[m]; });
+          }
+        }
+        return baseRow;
+      });
 
       const worksheet = XLSX.utils.json_to_sheet(excelData);
-      
-      const wscols = [
-        {wch:5}, {wch:20}, {wch:25}, {wch:10}, {wch:20},
-        {wch:15}, {wch:15}, {wch:15}, {wch:15}, {wch:15},
-        {wch:15}, {wch:15}, {wch:15}, {wch:15}, {wch:50}, {wch:50}, {wch:20}, {wch:20}
-      ];
-      worksheet['!cols'] = wscols;
-
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Data Terperinci CBT");
       XLSX.writeFile(workbook, "Laporan_Terperinci_CBT_MathEase.xlsx");
