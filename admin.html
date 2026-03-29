@@ -456,6 +456,7 @@
     }
 
     function renderStudentList() {
+      document.getElementById('student_list_table').innerHTML = allStudents.map(s => `
         <tr><td><strong>${s.nama}</strong></td><td>${s.email||'-'}</td><td>${s.kelas} / ${s.sekolah || '-'}</td>
         <td><span style="font-size:0.75rem; color:var(--text-soft); font-weight:600;">${new Date(s.created_at).toLocaleDateString('id-ID')}</span></td>
         <td><span class="badge ${s.posttest_done?'badge-success':'badge-warning'}">Stage ${s.current_stage||0}</span></td>
