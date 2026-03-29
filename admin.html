@@ -241,7 +241,7 @@
         <header><h2>Manajemen Siswa</h2><button class="btn btn-primary" onclick="loadData()">↻ Refresh</button></header>
         <div class="card">
           <table class="table-box">
-            <thead><tr><th>Nama</th><th>Email</th><th>Kelas/Sekolah</th><th>Status</th><th>Aksi</th></tr></thead>
+            <thead><tr><th>Nama</th><th>Email</th><th>Kelas/Sekolah</th><th>Daftar Pada</th><th>Status</th><th>Aksi</th></tr></thead>
             <tbody id="student_list_table"></tbody>
           </table>
         </div>
@@ -456,8 +456,8 @@
     }
 
     function renderStudentList() {
-      document.getElementById('student_list_table').innerHTML = allStudents.map(s => `
         <tr><td><strong>${s.nama}</strong></td><td>${s.email||'-'}</td><td>${s.kelas} / ${s.sekolah || '-'}</td>
+        <td><span style="font-size:0.75rem; color:var(--text-soft); font-weight:600;">${new Date(s.created_at).toLocaleDateString('id-ID')}</span></td>
         <td><span class="badge ${s.posttest_done?'badge-success':'badge-warning'}">Stage ${s.current_stage||0}</span></td>
         <td style="display:flex; gap:6px; flex-wrap:nowrap; align-items:center;">
             <button onclick="tampilkanDetailSiswa('${s.user_id}')" class="btn btn-primary" style="padding:6px 10px; font-size:0.75rem; min-width:60px;">Detail</button>
@@ -874,6 +874,8 @@
        const listData = allStudents.map(s => {
           const row = {
              'Nama': s.nama, 'Gender': s.gender, 'Kelas': s.kelas, 'Sekolah': s.sekolah, 
+             'Daftar Pada': new Date(s.created_at).toLocaleString('id-ID'),
+             'Update Terakhir': s.updated_at ? new Date(s.updated_at).toLocaleString('id-ID') : '-',
              'Skor Pre-Cemas': s.skor_pre_kecemasan || 0, 'Skor Pre-Motivasi': s.skor_pre_motivasi || 0,
              'Skor Post-Cemas': s.skor_post_kecemasan || 0, 'Skor Post-Motivasi': s.skor_post_motivasi || 0,
              'Skor Kuis Math': s.skor_kuis || 0,
