@@ -8,6 +8,10 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,700;1,400&display=swap"
     rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+    onload="renderMath(document.body);"></script>
   <style>
     :root {
       --bg: #F5F0E8;
@@ -1181,23 +1185,170 @@
       border-radius: 3px;
       flex-shrink: 0;
     }
+
+    .emosi-kartu.dipilih {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      box-shadow: 0 0 0 4px rgba(231, 111, 81, .12);
+    }
+
+    /* ── AUTH & DASHBOARD ── */
+    .auth-card {
+      background: var(--white);
+      border-radius: var(--r);
+      border: 1.5px solid var(--border);
+      padding: 32px 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .dashboard-menu {
+      display: grid;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .menu-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      transition: all .2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu-card:hover:not(.locked) {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .menu-card.locked {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background: #fdfdfd;
+    }
+
+    .menu-card.done {
+      border-color: var(--primary-mid);
+      background: var(--primary-light);
+    }
+
+    .menu-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .menu-info {
+      flex: 1;
+    }
+
+    .menu-title {
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .menu-desc {
+      font-size: .78rem;
+      color: var(--text-3);
+      line-height: 1.4;
+    }
+
+    .badge-lock {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 0.8rem;
+      color: var(--text-3);
+    }
+
+    .badge-check {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 1rem;
+      color: var(--primary);
+    }
+
+    .user-profile-header {
+      background: var(--primary);
+      color: white;
+      padding: 20px;
+      border-radius: var(--r);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .user-avatar {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-family: 'Fraunces', serif;
+    }
+
+    .user-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .user-meta {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .logout-link {
+      color: var(--danger);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    /* ── UTILS ── */
+    .mt-10 {
+      margin-top: 10px;
+    }
+
+    .mt-20 {
+      margin-top: 20px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .text-center {
+      text-align: center;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
-
-  <nav class="nav">
-    <div class="nav-logo" onclick="keHalaman(0)">Math<span>Ease</span></div>
-    <div class="nav-step" id="navStep">Beranda</div>
-  </nav>
-
-  <!-- PROGRESS -->
-  <div class="progress-bar" id="progressBar" style="display:none;">
-    <div class="progress-steps" id="progressSteps"></div>
-    <div class="progress-label" id="progressLabel"></div>
-  </div>
-
   <!-- MODAL -->
   <div class="modal-bg sembunyikan" id="modal">
     <div class="modal-kotak">
@@ -1209,11 +1360,178 @@
       <div id="modalTombol"></div>
     </div>
   </div>
-
   <!-- KONFETI -->
   <canvas class="konfeti" id="konfeti"></canvas>
 
-  <div id="app">
+  <div class="app">
+    <!-- NAV -->
+    <div class="nav" id="mainNav" style="display:none;">
+      <div class="nav-logo" onclick="keDashboard()">Math<span>Ease</span></div>
+      <div class="nav-step" id="navStep">Dashboard</div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-bar" id="progressBar" style="display:none;">
+      <div class="progress-steps" id="progressSteps"></div>
+      <div class="progress-label" id="progressLabel"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+     H_LOGIN - LOGIN SISWA
+    ══════════════════════════════════════ -->
+    <div class="page aktif" id="h_login">
+      <div class="wrap">
+        <div class="hero">
+          <div class="hero-icon">🔐</div>
+          <h1>Masuk ke <em>MathEase</em></h1>
+          <p>Silakan masukkan username dan password yang sudah terdaftar.</p>
+        </div>
+        <div class="auth-card">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-input" id="loginUser" placeholder="Masukkan username">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="loginPass" placeholder="Masukkan password">
+          </div>
+          <button class="btn btn-utama btn-full mt-10" onclick="prosesLogin()">Masuk Sekarang →</button>
+          <div class="text-center mt-20" style="font-size:0.85rem; color:var(--text-soft);">
+            Belum punya akun? <a href="javascript:keHalaman('register')"
+              style="color:var(--primary); font-weight:700; text-decoration:none; padding:4px 8px; border-radius:6px; background:var(--primary-light);">Daftar
+              di sini</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+     H_REGISTER - DAFTAR SISWA
+    ══════════════════════════════════════ -->
+    <div class="page" id="h_register">
+      <div class="wrap">
+        <div class="hero" style="padding-top:20px; padding-bottom:10px; position:relative;">
+          <a href="javascript:keHalaman('login')"
+            style="position:absolute; left:0; top:25px; color:var(--text-soft); text-decoration:none; font-size:0.9rem; font-weight:700;">←
+            Kembali</a>
+          <h1>Buat Akun <em>Baru</em></h1>
+          <p>Lengkapi data diri kamu untuk mulai program CBT.</p>
+        </div>
+        <div class="auth-card">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="regUsername" class="form-input" placeholder="Buat username unik">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="regEmail" class="form-input" placeholder="Masukkan email aktif">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="regPassword" class="form-input" placeholder="Buat password">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap</label>
+            <input type="text" class="form-input" id="regNama" placeholder="Nama sesuai absen">
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="form-group">
+              <label class="form-label">Kelas</label>
+              <input type="text" class="form-input" id="regKelas" placeholder="Contoh: 8A">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sekolah</label>
+              <input type="text" class="form-input" id="regSekolah" placeholder="Nama Sekolah">
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="form-group">
+              <label class="form-label">Jenis Kelamin</label>
+              <select class="form-input" id="regGender">
+                <option value="L">Laki-laki</option>
+                <option value="P">Perempuan</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tanggal Lahir</label>
+              <input type="date" class="form-input" id="regDob">
+            </div>
+          </div>
+          <button class="btn btn-utama btn-full mt-10" onclick="prosesRegister()">Daftar Akun →</button>
+          <div class="text-center mt-20" style="font-size:0.85rem; color:var(--text-soft);">
+            Sudah punya akun? <a href="javascript:keHalaman('login')"
+              style="color:var(--primary); font-weight:700; text-decoration:none; padding:4px 8px; border-radius:6px; background:var(--primary-light);">Masuk
+              di sini</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+     H_DASHBOARD - MENU UTAMA SISWA
+    ══════════════════════════════════════ -->
+    <div class="page" id="h_dashboard">
+      <div class="wrap">
+        <div class="user-profile-header">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <div class="user-info">
+            <div class="user-name" id="userName">User Name</div>
+            <div class="user-meta" id="userMeta">Kelas 8A • SMPN 1 Jakarta</div>
+          </div>
+          <div style="margin-left:auto;">
+            <span class="logout-link" onclick="prosesLogout()">Keluar</span>
+          </div>
+        </div>
+
+        <div class="sj">
+          <div class="sj-tag">🏠 Dashboard Siswa</div>
+          <h2>Selamat Datang!</h2>
+          <p>Pilih menu di bawah ini sesuai tahapan pertemuan yang diarahkan oleh gurumu.</p>
+        </div>
+
+        <div class="dashboard-menu">
+          <!-- CARD 1: PRETEST -->
+          <div class="menu-card" id="cardPretest" onclick="aksesMateri('pretest')">
+            <div class="menu-icon">📊</div>
+            <div class="menu-info">
+              <div class="menu-title">Langkah 1: Pre-Test</div>
+              <div class="menu-desc">Pengukuran awal kecemasan & motivasi matematis.</div>
+            </div>
+            <div id="checkPretest" class="badge-check hidden">✅</div>
+            <div id="lockPretest" class="badge-lock">🔒</div>
+          </div>
+
+          <!-- CARD 2: TAHAPAN CBT -->
+          <div class="menu-card" id="cardCBT" onclick="aksesMateri('cbt')">
+            <div class="menu-icon">🧠</div>
+            <div class="menu-info">
+              <div class="menu-title">Langkah 2: Program CBT</div>
+              <div class="menu-desc">5 Tahapan untuk mengubah pola pikir (Pertemuan 2-4).</div>
+            </div>
+            <div id="badgeCBT" class="badge-lock">🔒</div>
+            <div id="progressCBT" style="font-size:0.7rem; color:var(--primary); font-weight:700; margin-top:4px;">
+            </div>
+          </div>
+
+          <!-- CARD 3: POSTTEST -->
+          <div class="menu-card" id="cardPosttest" onclick="aksesMateri('posttest')">
+            <div class="menu-icon">🏁</div>
+            <div class="menu-info">
+              <div class="menu-title">Langkah 3: Post-Test</div>
+              <div class="menu-desc">Pengukuran akhir setelah program CBT selesai.</div>
+            </div>
+            <div id="checkPosttest" class="badge-check hidden">✅</div>
+            <div id="lockPosttest" class="badge-lock">🔒</div>
+          </div>
+        </div>
+
+        <div class="info mt-20">
+          <span class="info-ikon">💡</span>
+          <span>Jika menu masih terkunci 🔒, artinya kamu belum menyelesaikan tahap sebelumnya atau gurumu belum membuka
+            akses untuk pertemuan ini.</span>
+        </div>
+      </div>
+    </div>
 
     <!-- ══════════════════════════════════════
      H0 — BERANDA
@@ -1275,7 +1593,7 @@
         <div class="info biru"><span class="info-ikon">📚</span><span>Penelitian: <em>"Integrasi CBT Digital Berbasis
               Visualisasi Emosi terhadap Kecemasan Matematis dan Motivasi Intrinsik Siswa"</em></span></div>
 
-        <button class="btn btn-utama btn-full" onclick="keHalaman(1)">Mulai Program →</button>
+        <button class="btn btn-utama btn-full" onclick="keDashboard()">Lanjut ke Dashboard →</button>
       </div>
     </div>
 
@@ -1361,11 +1679,11 @@
         </div>
 
         <div style="font-size:.82rem;color:var(--text-3);margin-bottom:16px;" id="infoAngket">
-          Isi semua pertanyaan untuk melanjutkan. (<span id="hitungAngket">0</span>/35 dijawab)
+          Isi semua pertanyaan untuk melanjutkan. (<span id="hitungAngket">0</span> dijawab)
         </div>
         <div class="btn-row">
-          <button class="btn btn-outline" onclick="keHalaman(1)">← Kembali</button>
-          <button class="btn btn-utama nonaktif" id="btnPreTest" onclick="prosesPreTest()">Lihat Hasil Diagnosa
+          <button class="btn btn-outline" onclick="keDashboard()">← Dashboard</button>
+          <button class="btn btn-utama nonaktif" id="btnPreTest" onclick="prosesPreTest()">Kirim Jawaban Pre-Test
             →</button>
         </div>
       </div>
@@ -1396,7 +1714,7 @@
               mengelola kecemasan matematika. Ikuti 5 tahapan berikut dengan sungguh-sungguh.</span></div>
         </div>
 
-        <button class="btn btn-hijau btn-full" onclick="keHalaman(4)">Mulai 5 Tahapan CBT →</button>
+        <button class="btn btn-hijau btn-full" onclick="keDashboard()">Kembali ke Dashboard →</button>
       </div>
     </div>
 
@@ -1465,8 +1783,8 @@
         </div>
 
         <div class="btn-row">
-          <button class="btn btn-outline" onclick="keHalaman(3)">← Kembali</button>
-          <button class="btn btn-hijau nonaktif" id="btnTahap1" onclick="keHalaman(5)">Lanjut ke Tahap 2 →</button>
+          <button class="btn btn-outline" onclick="keDashboard()">← Dashboard</button>
+          <button class="btn btn-hijau nonaktif" id="btnTahap1" onclick="prosesCBT(1)">Selesai Tahap 1 →</button>
         </div>
       </div>
     </div>
@@ -1507,8 +1825,8 @@
           untuk melanjutkan.</div>
 
         <div class="btn-row">
-          <button class="btn btn-outline" onclick="keHalaman(4)">← Kembali</button>
-          <button class="btn btn-hijau nonaktif" id="btnTahap2" onclick="keHalaman(6)">Lanjut ke Tahap 3 →</button>
+          <button class="btn btn-outline" onclick="keDashboard()">← Dashboard</button>
+          <button class="btn btn-hijau nonaktif" id="btnTahap2" onclick="prosesCBT(2)">Selesai Tahap 2 →</button>
         </div>
       </div>
     </div>
@@ -1553,8 +1871,8 @@
             apa-apa jika belum terasa alami — yang penting terus mencoba setiap hari.</span></div>
 
         <div class="btn-row">
-          <button class="btn btn-outline" onclick="keHalaman(5)">← Kembali</button>
-          <button class="btn btn-hijau" onclick="keHalaman(7)">Lanjut ke Tahap 4 →</button>
+          <button class="btn btn-outline" onclick="keDashboard()">← Dashboard</button>
+          <button class="btn btn-hijau" onclick="prosesCBT(3)">Selesai Tahap 3 →</button>
         </div>
       </div>
     </div>
@@ -1610,7 +1928,7 @@
             </div>
             <div class="btn-row" style="justify-content:center;margin-top:16px;">
               <button class="btn btn-outline" onclick="ulangiSoal()">Ulangi</button>
-              <button class="btn btn-hijau" onclick="keHalaman(8)">Lanjut ke Tahap 5 →</button>
+              <button class="btn btn-hijau" onclick="prosesCBT(4)">Selesai Tahap 4 →</button>
             </div>
           </div>
         </div>
@@ -1689,8 +2007,8 @@
         </div>
 
         <div class="btn-row">
-          <button class="btn btn-outline" onclick="keHalaman(7)">← Kembali</button>
-          <button class="btn btn-hijau nonaktif" id="btnTahap5" onclick="keHalaman(9)">Lanjut ke Post-Test →</button>
+          <button class="btn btn-outline" onclick="keDashboard()">← Dashboard</button>
+          <button class="btn btn-hijau nonaktif" id="btnTahap5" onclick="prosesCBT(5)">Selesai Tahap 5 →</button>
         </div>
       </div>
     </div>
@@ -1724,11 +2042,40 @@
         </div>
 
         <div style="font-size:.82rem;color:var(--text-3);margin-bottom:16px;" id="infoAngketPost">
-          Isi semua pertanyaan untuk melanjutkan. (<span id="hitungAngketPost">0</span>/35 dijawab)
+          Isi semua pertanyaan untuk melanjutkan. (<span id="hitungAngketPost">0</span> dijawab)
         </div>
         <div class="btn-row">
-          <button class="btn btn-outline" onclick="keHalaman(8)">← Kembali</button>
-          <button class="btn btn-utama nonaktif" id="btnPostTest" onclick="prosesPostTest()">Lihat Hasil Akhir
+          <button class="btn btn-outline" onclick="keDashboard()">← Dashboard</button>
+          <button class="btn btn-utama nonaktif" id="btnPostTest" onclick="prosesPostTest()">Kirim Jawaban Post-Test
+            →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+     H_RESPON_MEDIA - ANGKET RESPON MEDIA
+    ══════════════════════════════════════ -->
+    <div class="page" id="h_respon_media">
+      <div class="wrap">
+        <div class="step-pill">
+          <div class="n">5</div>Respon Media
+        </div>
+        <div class="sj">
+          <div class="sj-tag">📱 Evaluasi Media</div>
+          <h2>Tanggapanmu terhadap Web Ini</h2>
+          <p>Bantu kami meningkatkan kualitas web ini dengan memberikan penilaianmu.</p>
+        </div>
+
+        <div class="info biru"><span class="info-ikon">💡</span><span>Pilihlah jawaban yang paling menggambarkan
+            perasaanmu setelah menggunakan web MathEase.</span></div>
+
+        <div class="angket-section">
+          <div class="angket-section-title">⭐ Angket Respon Media</div>
+          <div id="angketResponMedia"></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-utama" id="btnResponMedia" onclick="prosesResponMedia()">Kirim & Lihat Hasil Akhir
             →</button>
         </div>
       </div>
@@ -1805,260 +2152,438 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ══════════════════════════════════════════════════
-    // DATA ANGKET
+    // DYNAMIC CONTENT STATE
     // ══════════════════════════════════════════════════
-    const angketKecemasanData = [
-      { id: 'k1', teks: 'Saya merasa matematika merupakan pelajaran yang sulit dipahami', dimensi: 'Pikiran Negatif', positif: false },
-      { id: 'k2', teks: 'Saya merasa kemampuan saya dalam matematika berada pada tingkat rendah', dimensi: 'Pikiran Negatif', positif: false },
-      { id: 'k3', teks: 'Saya merasa mampu memahami pelajaran matematika dengan baik', dimensi: 'Pikiran Negatif', positif: true },
-      { id: 'k4', teks: 'Saya percaya diri saat mengikuti pelajaran matematika', dimensi: 'Pikiran Negatif', positif: true },
-      { id: 'k5', teks: 'Saya memiliki bayangan kesulitan sebelum pelajaran matematika dimulai', dimensi: 'Pikiran Negatif', positif: false },
-      { id: 'k6', teks: 'Saya merasa khawatir ketika mengerjakan soal matematika', dimensi: 'Overthinking', positif: false },
-      { id: 'k7', teks: 'Saya merasa takut saat mengerjakan soal matematika', dimensi: 'Overthinking', positif: false },
-      { id: 'k8', teks: 'Saya dapat mengendalikan pikiran saat mengerjakan soal matematika', dimensi: 'Overthinking', positif: true },
-      { id: 'k9', teks: 'Saya memikirkan kemungkinan memperoleh nilai rendah dalam matematika', dimensi: 'Overthinking', positif: false },
-      { id: 'k10', teks: 'Saya merasa tenang saat menghadapi soal matematika', dimensi: 'Overthinking', positif: true },
-      { id: 'k11', teks: 'Saya mengalami kesulitan berkonsentrasi saat pelajaran matematika berlangsung', dimensi: 'Gangguan Konsentrasi', positif: false },
-      { id: 'k12', teks: 'Perhatian saya mudah teralihkan saat mengerjakan soal matematika', dimensi: 'Gangguan Konsentrasi', positif: false },
-      { id: 'k13', teks: 'Saya dapat fokus dengan baik saat pelajaran matematika berlangsung', dimensi: 'Gangguan Konsentrasi', positif: true },
-      { id: 'k14', teks: 'Saya merasa bingung saat memahami soal matematika', dimensi: 'Gangguan Konsentrasi', positif: false },
-      { id: 'k15', teks: 'Saya dapat berpikir jernih saat mengerjakan soal matematika', dimensi: 'Gangguan Konsentrasi', positif: true },
-    ];
+    let angketKecemasanData = [];
+    let angketMotivasiData = [];
+    let angketResponMediaData = [];
+    let soalData = [];
+    let cbtStagesContent = {};
 
-    const angketMotivasiData = [
-      { id: 'm1', teks: 'Saya merasa tertarik mempelajari matematika', dimensi: 'Ketertarikan', positif: true },
-      { id: 'm2', teks: 'Saya menikmati kegiatan belajar matematika', dimensi: 'Ketertarikan', positif: true },
-      { id: 'm3', teks: 'Saya merasa matematika kurang menarik bagi saya', dimensi: 'Ketertarikan', positif: false },
-      { id: 'm4', teks: 'Saya merasa antusias saat pelajaran matematika berlangsung', dimensi: 'Ketertarikan', positif: true },
-      { id: 'm5', teks: 'Saya merasa pembelajaran matematika terasa membosankan', dimensi: 'Ketertarikan', positif: false },
-      { id: 'm6', teks: 'Saya merasa senang saat belajar matematika', dimensi: 'Rasa Senang', positif: true },
-      { id: 'm7', teks: 'Saya merasa puas setelah menyelesaikan soal matematika', dimensi: 'Rasa Senang', positif: true },
-      { id: 'm8', teks: 'Saya merasa tertekan saat belajar matematika', dimensi: 'Rasa Senang', positif: false },
-      { id: 'm9', teks: 'Saya merasa nyaman saat mengikuti pelajaran matematika', dimensi: 'Rasa Senang', positif: true },
-      { id: 'm10', teks: 'Saya merasa belajar matematika menjadi beban', dimensi: 'Rasa Senang', positif: false },
-      { id: 'm11', teks: 'Saya belajar matematika karena keinginan dari diri sendiri', dimensi: 'Keinginan dari Dalam Diri', positif: true },
-      { id: 'm12', teks: 'Saya memiliki keinginan untuk memahami materi matematika lebih dalam', dimensi: 'Keinginan dari Dalam Diri', positif: true },
-      { id: 'm13', teks: 'Saya belajar matematika karena dorongan dari luar diri saya', dimensi: 'Keinginan dari Dalam Diri', positif: false },
-      { id: 'm14', teks: 'Saya memiliki tujuan pribadi dalam belajar matematika', dimensi: 'Keinginan dari Dalam Diri', positif: true },
-      { id: 'm15', teks: 'Saya merasa belajar matematika hanya sebagai kewajiban', dimensi: 'Keinginan dari Dalam Diri', positif: false },
-      { id: 'm16', teks: 'Saya merasa penasaran terhadap materi matematika', dimensi: 'Rasa Ingin Tahu', positif: true },
-      { id: 'm17', teks: 'Saya ingin mengetahui lebih banyak tentang matematika', dimensi: 'Rasa Ingin Tahu', positif: true },
-      { id: 'm18', teks: 'Saya merasa cukup dengan penjelasan tanpa ingin mencari lebih lanjut', dimensi: 'Rasa Ingin Tahu', positif: false },
-      { id: 'm19', teks: 'Saya terlibat aktif saat pembelajaran matematika berlangsung', dimensi: 'Rasa Ingin Tahu', positif: true },
-      { id: 'm20', teks: 'Saya lebih memilih diam saat pelajaran matematika berlangsung', dimensi: 'Rasa Ingin Tahu', positif: false },
-    ];
 
     const opsiAngket = ['SS', 'S', 'TS', 'STS'];
     const nilaiOpsi = { SS: 4, S: 3, TS: 2, STS: 1 };
 
-    // ══ DATA PIKIRAN & REFRAME ══
-    // Tipe: 'cemas' (kecemasan tinggi/sedang), 'netral' (biasa saja), 'percaya' (cukup/sangat percaya diri)
-    const pikiranData = {
-      cemas: {
-        A: [
-          { teks: '"Aku memang tidak pintar matematika."', reframe: 'Kemampuan matematika bukan sifat bawaan yang tetap, melainkan keahlian yang dapat dikembangkan melalui strategi belajar yang tepat dan latihan yang konsisten.' },
-          { teks: '"Otak dirancang bukan untuk memahami angka."', reframe: 'Neuroplastisitas membuktikan bahwa otak dapat membentuk koneksi baru; saya mampu memahami konsep ini dengan bimbingan dan waktu yang cukup.' },
-          { teks: '"Aku selalu gagal dalam pelajaran ini."', reframe: 'Kegagalan di masa lalu merupakan data berharga untuk memperbaiki metode belajar saya, bukan penentu keberhasilan saya di masa depan.' },
-          { teks: '"Kemampuanku jauh di bawah standar teman."', reframe: 'Proses belajar setiap individu memiliki ritme yang berbeda; fokus pada kemajuan personal akan memberikan hasil yang lebih stabil.' },
-          { teks: '"Aku tidak akan pernah bisa menguasai soal cerita."', reframe: 'Soal cerita adalah keterampilan dekonstruksi masalah yang dapat saya pelajari secara bertahap mulai dari hal sederhana.' }
-        ],
-        B: [
-          { teks: '"Teman pasti menganggapku bodoh jika bertanya."', reframe: 'Mengajukan pertanyaan menunjukkan keberanian untuk belajar dan membantu memperjelas pemahaman bagi diri sendiri dan orang lain.' },
-          { teks: '"Guru kecewa jika aku tidak bisa menjawab."', reframe: 'Peran guru adalah membimbing proses belajar; ketidaktahuan saya adalah titik awal pembelajaran yang seharusnya dikomunikasikan.' },
-          { teks: '"Orang tua marah jika nilaiku rendah."', reframe: 'Nilai adalah indikator pemahaman saat ini yang bisa ditingkatkan dengan komunikasi terbuka mengenai kesulitan yang dihadapi.' },
-          { teks: '"Semua orang memperhatikanku saat aku buntu."', reframe: 'Kecemasan seringkali membuat saya melebih-lebihkan atensi orang lain; kenyataannya, fokus setiap orang ada pada tantangan masing-masing.' },
-          { teks: '"Aku merasa malu karena harus mengikuti remedial."', reframe: 'Remedial adalah kesempatan tambahan untuk memastikan saya benar-benar menguasai kompetensi dasar sebelum melanjutkannya.' }
-        ],
-        C: [
-          { teks: '"Pikiranku langsung blank saat melihat soal."', reframe: 'Reaksi fisik ini adalah respon stres yang dapat diredakan dengan teknik pernapasan, lalu fokus pada soal yang paling mudah.' },
-          { teks: '"Aku pasti melakukan kesalahan hitung konyol."', reframe: 'Ketelitian dapat ditingkatkan dengan pengecekan ulang secara sistematis setelah seluruh soal selesai dikerjakan.' },
-          { teks: '"Waktunya tidak cukup untuk semua soal."', reframe: 'Manajemen waktu yang efektif melibatkan alokasi durasi tertentu untuk setiap soal tanpa terpaku pada satu hambatan.' },
-          { teks: '"Soal ini jauh lebih sulit dari yang diajarkan."', reframe: 'Saya dapat mencoba membagi soal yang kompleks menjadi bagian-bagian kecil yang lebih sederhana dan dapat dikelola.' },
-          { teks: '"Jika buntu di awal, aku pasti gagal total."', reframe: 'Satu hambatan pada satu nomor tidak menentukan hasil keseluruhan; saya memiliki kemampuan untuk beralih ke strategi lain.' }
-        ]
-      },
-      netral: {
-        A: [
-          { teks: '"Beberapa materi terasa membingungkan."', reframe: 'Kebingungan adalah bagian alami dari proses belajar yang menandakan otak sedang berusaha mengintegrasikan informasi baru.' },
-          { teks: '"Belajar matematika sangat melelahkan."', reframe: 'Saya bisa mengatur jeda istirahat yang efektif untuk menjaga kesegaran pikiran saat mempelajari konsep matematika.' },
-          { teks: '"Kadang aku ragu pada kemampuan logikaku."', reframe: 'Logika adalah otot mental yang dapat diperkuat melalui latihan soal yang bervariasi dan konsisten.' },
-          { teks: '"Hasil tes sebelumnya biasa saja."', reframe: 'Hasil rata-rata adalah fondasi yang stabil untuk melangkah ke tingkat pemahaman yang lebih tinggi dengan usaha tambahan.' },
-          { teks: '"Aku kurang fokus belajar matematika hari ini."', reframe: 'Konsentrasi yang fluktuatif adalah wajar; saya bisa mulai dari bagian yang paling menarik untuk membangun kembali fokus.' }
-        ],
-        B: [
-          { teks: '"Malas bertanya karena tidak mau repot."', reframe: 'Investasi waktu untuk bertanya sekarang akan menghemat banyak waktu di masa depan karena pemahaman yang lebih jernih.' },
-          { teks: '"Merasa tidak perlu bantuan orang lain."', reframe: 'Kolaborasi dan diskusi dengan teman seringkali membuka perspektif baru dalam memecahkan masalah matematika yang sulit.' },
-          { teks: '"Berpikir guru tidak terlalu memperhatikan."', reframe: 'Saya dapat mengambil inisiatif untuk menunjukkan progres belajar saya agar mendapatkan arahan yang lebih spesifik dari guru.' },
-          { teks: '"Tidak terlalu peduli dengan nilai matematika."', reframe: 'Memahami matematika memberikan manfaat jangka panjang dalam kemampuan analisis dan pemecahan masalah di kehidupan nyata.' },
-          { teks: '"Fokus pada pelajaran lain yang lebih mudah."', reframe: 'Menyeimbangkan perhatian pada semua subjek akan memberikan profil akademis yang lebih kuat dan menyeluruh.' }
-        ],
-        C: [
-          { teks: '"Ingin cepat selesai saat mengerjakan soal."', reframe: 'Menghargai proses pengerjaan akan membantu saya menemukan detail-detail penting yang mungkin terlewat jika terlalu terburu-buru.' },
-          { teks: '"Kurang teliti dalam membaca soal cerita."', reframe: 'Membaca soal secara perlahan dan menandai informasi penting adalah strategi yang efektif untuk menghindari kesalahan interpretasi.' },
-          { teks: '"Sering menerka jawaban tanpa menghitung."', reframe: 'Melakukan langkah perhitungan secara prosedural memberikan keyakinan lebih tinggi pada kebenaran jawaban yang saya pilih.' },
-          { teks: '"Mudah terdistraksi saat ujian berlangsung."', reframe: 'Saya dapat melatih teknik fokus singkat untuk segera kembali ke soal setiap kali pikiran mulai teralihkan.' },
-          { teks: '"Persiapan belajarku kurang maksimal."', reframe: 'Meskipun persiapan terbatas, saya tetap bisa mengoptimalkan pengetahuan yang sudah saya miliki untuk menjawab soal sebaik mungkin.' }
-        ]
-      },
-      percaya: {
-        A: [
-          { teks: '"Aku bisa mengerjakan tantangan ini."', reframe: 'Keyakinan diri saya didasarkan pada persiapan yang matang dan kemauan untuk terus mencoba hingga berhasil.' },
-          { teks: '"Pikiranku sangat tajam hari ini."', reframe: 'Kondisi mental yang prima ini akan saya manfaatkan untuk memahami konsep-konsep yang paling menantang sekalipun.' },
-          { teks: '"Siap belajar konsep matematika baru."', reframe: 'Keterbukaan terhadap informasi baru adalah kunci utama dalam pertumbuhan intelektual dan penguasaan materi.' },
-          { teks: '"Percaya diri menjawab di depan kelas."', reframe: 'Berbagi pemahaman di depan publik memperkuat penguasaan materi dan melatih kemampuan komunikasi teknis saya.' },
-          { teks: '"Matematika adalah kekuatan utama saya."', reframe: 'Saya akan terus mengasah bakat ini dan menggunakannya untuk membantu memecahkan masalah yang lebih kompleks.' }
-        ],
-        B: [
-          { teks: '"Siap membantu teman yang kesulitan."', reframe: 'Mengajar orang lain adalah cara terbaik untuk memantapkan pemahaman saya sendiri terhadap materi tersebut.' },
-          { teks: '"Menantikan umpan balik positif dari guru."', reframe: 'Kritik konstruktif dan saran dari guru adalah bahan bakar utama untuk mencapai tingkat kesempurnaan yang lebih tinggi.' },
-          { teks: '"Ingin menunjukkan hasil kerja terbaik."', reframe: 'Kualitas hasil kerja mencerminkan dedikasi dan standar personal yang tinggi terhadap pencapais akademis.' },
-          { teks: '"Bangga dengan progres belajar saya."', reframe: 'Menghargai setiap langkah kecil kemajuan akan menjaga motivasi saya tetap stabil dalam jangka panjang.' },
-          { teks: '"Kompetisi sehat memotivasi saya."', reframe: 'Melihat kemajuan orang lain menginspirasi saya untuk terus menembus batas kemampuan diri saya sendiri.' }
-        ],
-        C: [
-          { teks: '"Menikmati proses pemecahan masalah."', reframe: 'Setiap hambatan dalam soal adalah teka-teki intelektual yang memberikan kepuasan tersendiri saat berhasil dipecahkan.' },
-          { teks: '"Strategi hitung saya sangat efektif."', reframe: 'Saya akan terus mengeksplorasi berbagai metode perhitungan untuk menemukan cara yang paling efisien dan akurat.' },
-          { teks: '"Fokus penuh saat mengerjakan ujian."', reframe: 'Konsentrasi yang mendalam memungkinkan saya bekerja dengan cepat tanpa mengorbankan ketelitian.' },
-          { teks: '"Analisis soal saya sangat mendalam."', reframe: 'Kemampuan saya melihat struktur di balik angka membantu saya menemukan solusi bahkan pada soal yang terlihat rumit.' },
-          { teks: '"Cermat dalam melakukan pengecekan ulang."', reframe: 'Pengecekan akhir adalah langkah profesional untuk memastikan integritas dan kualitas dari seluruh jawaban saya.' }
-        ]
-      }
-    };
-
-    // ══ DATA SOAL ══
-    const soalData = [
-      // ── SPLSV ──
-      {
-        soal: 'Jika 2x + 5 = 13, nilai x adalah …',
-        petunjuk: '💡 SPLSV: pindahkan konstanta ke ruas kanan, lalu bagi kedua ruas dengan koefisien x.',
-        opsi: ['3', '4', '5', '6'],
-        jawaban: 1,
-        penjelasan: '2x = 13 − 5 = 8, maka x = 8 ÷ 2 = 4.'
-      },
-      {
-        soal: 'Selesaikan: 3x − 7 = 14. Nilai x adalah …',
-        petunjuk: '💡 SPLSV: tambahkan 7 ke kedua ruas terlebih dahulu.',
-        opsi: ['5', '6', '7', '8'],
-        jawaban: 2,
-        penjelasan: '3x = 14 + 7 = 21, maka x = 21 ÷ 3 = 7.'
-      },
-      {
-        soal: 'Jika 4(x − 2) = 20, nilai x adalah …',
-        petunjuk: '💡 SPLSV: bagi kedua ruas dengan 4 lebih dulu, atau distribusikan terlebih dahulu.',
-        opsi: ['5', '6', '7', '8'],
-        jawaban: 2,
-        penjelasan: '4(x − 2) = 20 → x − 2 = 5 → x = 7.'
-      },
-      {
-        soal: 'Persamaan x/3 + 4 = 10 memiliki nilai x = …',
-        petunjuk: '💡 SPLSV: kurangi 4 dari kedua ruas, lalu kalikan dengan 3.',
-        opsi: ['12', '15', '18', '21'],
-        jawaban: 2,
-        penjelasan: 'x/3 = 10 − 4 = 6, maka x = 6 × 3 = 18.'
-      },
-      {
-        soal: 'Tiga kali suatu bilangan dikurangi 9 hasilnya 21. Bilangan tersebut adalah …',
-        petunjuk: '💡 SPLSV: buat persamaan terlebih dahulu: 3x − 9 = 21.',
-        opsi: ['8', '9', '10', '11'],
-        jawaban: 2,
-        penjelasan: '3x = 21 + 9 = 30, maka x = 30 ÷ 3 = 10.'
-      },
-      // ── SPLDV ──
-      {
-        soal: 'Diketahui x + y = 10 dan x − y = 4. Nilai x adalah …',
-        petunjuk: '💡 SPLDV metode eliminasi: jumlahkan kedua persamaan untuk mengeliminasi y.',
-        opsi: ['5', '6', '7', '8'],
-        jawaban: 2,
-        penjelasan: 'Jumlahkan: 2x = 14 → x = 7.'
-      },
-      {
-        soal: 'Dari sistem 2x + y = 11 dan x + y = 7, nilai x adalah …',
-        petunjuk: '💡 SPLDV: kurangi persamaan kedua dari pertama untuk mengeliminasi y.',
-        opsi: ['3', '4', '5', '6'],
-        jawaban: 1,
-        penjelasan: 'Kurangi: (2x + y) − (x + y) = 11 − 7 → x = 4.'
-      },
-      {
-        soal: 'Jika 3x + 2y = 16 dan x + 2y = 8, nilai x adalah …',
-        petunjuk: '💡 SPLDV metode eliminasi: kurangi kedua persamaan untuk menghilangkan 2y.',
-        opsi: ['3', '4', '5', '6'],
-        jawaban: 1,
-        penjelasan: 'Kurangi: 2x = 8 → x = 4.'
-      },
-      {
-        soal: 'Diketahui x + y = 7 dan x − y = 3. Nilai y adalah …',
-        petunjuk: '💡 SPLDV: setelah dapat x dari eliminasi, substitusikan ke salah satu persamaan.',
-        opsi: ['1', '2', '3', '4'],
-        jawaban: 1,
-        penjelasan: 'Dari eliminasi: 2x = 10 → x = 5. Substitusi: 5 + y = 7 → y = 2.'
-      },
-      {
-        soal: 'Harga 2 pensil dan 1 buku = Rp13.000. Harga 1 pensil dan 1 buku = Rp9.000. Harga 1 pensil adalah …',
-        petunjuk: '💡 SPLDV: misalkan pensil = p dan buku = b, lalu eliminasi b dari kedua persamaan.',
-        opsi: ['Rp2.000', 'Rp3.000', 'Rp4.000', 'Rp5.000'],
-        jawaban: 2,
-        penjelasan: 'Kurangi persamaan: (2p + b) − (p + b) = 13.000 − 9.000 → p = Rp4.000.'
-      },
-    ];
 
     // ══ STATE ══
     const state = {
-      identitas: {},
+      user: null, // Data profil user {id, username, nama, kelas, sekolah, gender, dob}
+      settings: { pertemuan_aktif: '1' }, // Pertemuan yang dibuka oleh guru
+      progress: {
+        current_meeting: 1,
+        current_stage: 0,
+        pretest_done: false,
+        cbt_stage_1_done: false,
+        cbt_stage_2_done: false,
+        cbt_stage_3_done: false,
+        cbt_stage_4_done: false,
+        cbt_stage_5_done: false,
+        posttest_done: false,
+        respon_media_done: false
+      },
+      // Data Jawaban
       preKecemasan: {}, preMotivasi: {},
       postKecemasan: {}, postMotivasi: {},
-      emosiAwal: null, emosiAwalNama: null, emosiState: null, // 'cemas', 'netral', 'percaya'
+      emosiAwal: null, emosiAwalNama: null, emosiState: null,
       emosiAkhir: null, emosiAkhirNama: null,
       pikiranDipilih: [],
       afirmasiDipilih: null,
-      soalBenar: 0, soalTotal: soalData.length,
+      soalBenar: 0, soalTotal: 0,
       nafasSelesai: false,
+      jawabanResponMedia: {}
     };
 
-    const navLabels = ['Beranda', 'Identitas', 'Pre-Test', 'Diagnosa Awal', 'CBT Tahap 1', 'CBT Tahap 2', 'CBT Tahap 3', 'CBT Tahap 4', 'CBT Tahap 5', 'Post-Test', 'Hasil Akhir'];
-    const progressConfig = [
-      { label: 'Beranda', show: false },
-      { label: 'Identitas', show: true, step: 1, total: 10 },
-      { label: 'Pre-Test', show: true, step: 2, total: 10 },
-      { label: 'Diagnosa Awal', show: true, step: 3, total: 10 },
-      { label: 'CBT: Sadar Emosi', show: true, step: 4, total: 10 },
-      { label: 'CBT: Identifikasi Pikiran', show: true, step: 5, total: 10 },
-      { label: 'CBT: Reframing', show: true, step: 6, total: 10 },
-      { label: 'CBT: Latihan Soal', show: true, step: 7, total: 10 },
-      { label: 'CBT: Relaksasi', show: true, step: 8, total: 10 },
-      { label: 'Post-Test', show: true, step: 9, total: 10 },
-      { label: 'Hasil Akhir', show: true, step: 10, total: 10 },
-    ];
+    const navLabels = {
+      'login': 'Login',
+      'register': 'Daftar Akun',
+      'dashboard': 'Menu Utama',
+      'h0': 'Beranda',
+      'h1': 'Identitas',
+      'h2': 'Pre-Test',
+      'h3': 'Diagnosa Awal',
+      'h4': 'CBT: Sadar Emosi',
+      'h5': 'CBT: Identifikasi Pikiran',
+      'h6': 'CBT: Reframing',
+      'h7': 'CBT: Latihan Soal',
+      'h8': 'CBT: Relaksasi',
+      'h9': 'Post-Test',
+      'h_respon_media': 'Respon Media',
+      'h10': 'Hasil Akhir'
+    };
+
+    const progressConfig = {
+      'h2': { label: 'Pre-Test', step: 1, total: 8 },
+      'h4': { label: 'CBT: Sadar Emosi', step: 2, total: 8 },
+      'h5': { label: 'CBT: Identifikasi', step: 3, total: 8 },
+      'h6': { label: 'CBT: Reframing', step: 4, total: 8 },
+      'h7': { label: 'CBT: Latihan Soal', step: 5, total: 8 },
+      'h8': { label: 'CBT: Relaksasi', step: 6, total: 8 },
+      'h9': { label: 'Post-Test', step: 7, total: 8 },
+      'h_respon_media': { label: 'Respon Media', step: 8, total: 8 }
+    };
 
     // ══ NAVIGASI ══
-    function keHalaman(n) {
+    function keHalaman(id) {
+      if (typeof id !== 'string') id = 'h' + id;
+
+      // Dashboard has its own handler that manages page switching + UI update
+      if (id === 'dashboard') { keDashboard(); return; }
+
       document.querySelectorAll('.page').forEach(p => p.classList.remove('aktif'));
-      document.getElementById('h' + n).classList.add('aktif');
-      document.getElementById('navStep').textContent = navLabels[n] || '';
+      const pageId = id.startsWith('h') ? id : 'h_' + id;
+      const target = document.getElementById(pageId);
+      if (target) target.classList.add('aktif');
+
+      const label = navLabels[id] || navLabels['h' + id] || '';
+      document.getElementById('navStep').textContent = label;
       window.scrollTo(0, 0);
 
-      const cfg = progressConfig[n];
+      // Progress Bar Logic
+      const cfg = progressConfig[id] || progressConfig['h' + id];
       const pb = document.getElementById('progressBar');
-      if (cfg && cfg.show) {
-        pb.style.display = 'block';
-        const steps = document.getElementById('progressSteps');
-        steps.innerHTML = '';
-        for (let i = 1; i <= cfg.total; i++) {
-          const d = document.createElement('div');
-          d.className = 'ps' + (i < cfg.step ? ' done' : i === cfg.step ? ' aktif' : '');
-          steps.appendChild(d);
-        }
-        document.getElementById('progressLabel').textContent = cfg.label + ' — Langkah ' + cfg.step + ' dari ' + cfg.total;
-      } else {
+      const nav = document.getElementById('mainNav');
+
+      if (id === 'login' || id === 'h_login' || id === 'h_register') {
+        nav.style.display = 'none';
         pb.style.display = 'none';
+      } else {
+        nav.style.display = 'flex';
+        if (cfg) {
+          pb.style.display = 'block';
+          const steps = document.getElementById('progressSteps');
+          steps.innerHTML = '';
+          for (let i = 1; i <= cfg.total; i++) {
+            const d = document.createElement('div');
+            d.className = 'ps' + (i < cfg.step ? ' done' : i === cfg.step ? ' aktif' : '');
+            steps.appendChild(d);
+          }
+          document.getElementById('progressLabel').textContent = cfg.label + ' — Langkah ' + cfg.step + ' dari ' + cfg.total;
+        } else {
+          pb.style.display = 'none';
+        }
       }
 
-      if (n === 2) bangunAngket('pre');
-      if (n === 5) bangunPikiran();
-      if (n === 6) bangunReframe();
-      if (n === 7) initSoal();
-      if (n === 8) bangunRelaksasi();
-      if (n === 9) bangunAngket('post');
-      if (n === 10) bangunHasil();
+      // Page specific init
+      if (id === 'h2') bangunAngket('pre');
+      if (id === 'h5') bangunPikiran();
+      if (id === 'h6') bangunReframe();
+      if (id === 'h7') initSoal();
+      if (id === 'h8') bangunRelaksasi();
+      if (id === 'h9') bangunAngket('post');
+      if (id === 'h_respon_media') bangunAngketRespon();
+      if (id === 'h10') bangunHasil();
+    }
+
+
+    // keDashboard is defined below — it handles both UI update and page navigation
+
+    // ══ AUTH & SESSION ══
+    async function loadSession() {
+      console.log('MathEase App Version: 2.1 (Dynamic Count Fix Active)');
+      await loadDynamicContent();
+      const userId = localStorage.getItem('mathease_user_id');
+      if (!userId) {
+        keHalaman('login');
+        return;
+      }
+      await fetchUserData(userId);
+    }
+
+    async function fetchUserData(userId) {
+      try {
+        // Get local settings
+        const { data: setts } = await supabaseClient.from('app_settings').select('*');
+        if (setts) {
+          setts.forEach(s => state.settings[s.key] = s.value);
+        }
+
+        // Get Profile
+        const { data: profile, error: pErr } = await supabaseClient.from('profiles').select('*').eq('id', userId).single();
+        if (pErr || !profile) throw new Error('User tidak ditemukan');
+        state.user = profile;
+
+        // Get Student Data / Progress — auto-create row if missing (handles pre-fix accounts)
+        let { data: sData, error: sErr } = await supabaseClient.from('student_data').select('*').eq('user_id', userId).single();
+        if (sErr && sErr.code === 'PGRST116') {
+          // Row doesn't exist yet — insert it now
+          const { data: newRow } = await supabaseClient.from('student_data').insert([{ user_id: userId }]).select().single();
+          sData = newRow;
+          sErr = null;
+        } else if (sErr) throw sErr;
+
+        if (sData) {
+          // Map existing data to state
+          state.progress = {
+            current_meeting: sData.current_meeting,
+            current_stage: sData.current_stage,
+            pretest_done: sData.pretest_done,
+            cbt_stage_1_done: sData.cbt_stage_1_done,
+            cbt_stage_2_done: sData.cbt_stage_2_done,
+            cbt_stage_3_done: sData.cbt_stage_3_done,
+            cbt_stage_4_done: sData.cbt_stage_4_done,
+            cbt_stage_5_done: sData.cbt_stage_5_done,
+            posttest_done: sData.posttest_done,
+            respon_media_done: sData.respon_media_done
+          };
+          // Re-hydrate combined answers
+          const preAnswers = sData.jawaban_pre || {};
+          state.preKecemasan = {};
+          state.preMotivasi = {};
+          for (const id in preAnswers) {
+            if (angketKecemasanData.some(q => q.id === id)) state.preKecemasan[id] = preAnswers[id];
+            else if (angketMotivasiData.some(q => q.id === id)) state.preMotivasi[id] = preAnswers[id];
+          }
+
+          const postAnswers = sData.jawaban_post || {};
+          state.postKecemasan = {};
+          state.postMotivasi = {};
+          for (const id in postAnswers) {
+            if (angketKecemasanData.some(q => q.id === id)) state.postKecemasan[id] = postAnswers[id];
+            else if (angketMotivasiData.some(q => q.id === id)) state.postMotivasi[id] = postAnswers[id];
+          }
+          state.emosiAwalName = sData.emosi_awal;
+          state.emosiAkhirName = sData.emosi_akhir;
+          state.pikiranDipilih = sData.pikiran_dipilih || [];
+          state.afirmasiDipilih = sData.afirmasi_dipilih;
+          state.jawabanResponMedia = sData.jawaban_respon_media || {};
+        } else {
+          // Initialize progress for new user
+          await supabaseClient.from('student_data').insert([{ user_id: userId }]);
+        }
+
+        // Populate UI Dashboard
+        document.getElementById('userAvatar').textContent = profile.nama.charAt(0).toUpperCase();
+        document.getElementById('userName').textContent = profile.nama;
+        document.getElementById('userMeta').innerHTML = `${profile.email} <br> Kelas ${profile.kelas} • ${profile.sekolah}`;
+
+        keHalaman('dashboard');
+      } catch (err) {
+        console.error(err);
+        localStorage.removeItem('mathease_user_id');
+        keHalaman('login');
+      }
+    }
+
+    async function loadDynamicContent() {
+      try {
+        // Fetch Questions
+        const { data: qData } = await supabaseClient.from('questions_library').select('*').order('order_index');
+        if (qData) {
+          angketKecemasanData = qData.filter(q => q.type === 'anxiety');
+          angketMotivasiData = qData.filter(q => q.type === 'motivation');
+          angketResponMediaData = qData.filter(q => q.type === 'media_response');
+        }
+
+        // Fetch Math Exercises
+        const { data: mData } = await supabaseClient.from('math_exercises').select('*').order('id');
+        if (mData) {
+          soalData = mData.map(d => ({
+            soal: d.question_text,
+            petunjuk: d.hint,
+            opsi: d.options,
+            jawaban: d.correct_answer_index,
+            penjelasan: d.explanation,
+            category: d.category
+          }));
+          state.soalTotal = soalData.length;
+        }
+
+        // Fetch CBT Stages
+        const { data: sData } = await supabaseClient.from('cbt_stages').select('*').order('stage_number');
+        if (sData) {
+          sData.forEach(s => {
+            cbtStagesContent[s.stage_number] = s;
+          });
+        }
+
+        // Fetch App Settings
+        const { data: setts } = await supabaseClient.from('app_settings').select('*');
+        if (setts) {
+          setts.forEach(s => state.settings[s.key] = s.value);
+        }
+      } catch (err) {
+        console.error('Gagal memuat konten dinamis:', err);
+      }
+    }
+
+    async function prosesRegister() {
+      const username = document.getElementById('regUsername').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value.trim();
+      const nama = document.getElementById('regNama').value.trim();
+      const kelas = document.getElementById('regKelas').value.trim();
+      const sekolah = document.getElementById('regSekolah').value.trim();
+      const gender = document.getElementById('regGender').value;
+      const dob = document.getElementById('regDob').value;
+
+      if (!username || !email || !password || !nama || !kelas || !sekolah) {
+        tampilModal('⚠️', 'Data Kurang', 'Mohon lengkapi semua data wajib termasuk email.');
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient.from('profiles').insert([{
+          username, email, password, nama, kelas, sekolah, gender, dob
+        }]).select();
+
+        if (error) {
+          if (error.message.includes('profiles_username_key')) throw new Error("Username sudah digunakan.");
+          if (error.message.includes('profiles_email_key')) throw new Error("Email sudah terdaftar.");
+          throw error;
+        }
+
+        // Auto-create student_data row so saves always work
+        const newUserId = data[0].id;
+        await supabaseClient.from('student_data').insert([{ user_id: newUserId }]);
+
+        tampilModal('🎉', 'Pendaftaran Berhasil', 'Akun kamu sudah dibuat. Silakan login.', '<button class="btn btn-utama btn-full" onclick="tutupModal()">Lanjut ke Login</button>');
+        keHalaman('login');
+      } catch (err) {
+        tampilModal('❌', 'Gagal Daftar', err.message);
+      }
+    }
+
+    async function prosesLogin() {
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value.trim();
+
+      try {
+        const { data, error } = await supabaseClient.from('profiles').select('*').eq('username', user).eq('password', pass).single();
+        if (error || !data) throw new Error('Username atau Password salah.');
+
+        localStorage.setItem('mathease_user_id', data.id);
+        await fetchUserData(data.id);
+      } catch (err) {
+        tampilModal('❌', 'Login Gagal', err.message);
+      }
+    }
+
+    function prosesLogout() {
+      localStorage.removeItem('mathease_user_id');
+      location.reload();
+    }
+
+    function keDashboard() {
+      const u = state.user;
+      document.getElementById('userAvatar').textContent = u.nama.charAt(0).toUpperCase();
+      document.getElementById('userName').textContent = u.nama;
+      document.getElementById('userMeta').textContent = `Kelas ${u.kelas} • ${u.sekolah}`;
+
+      const p = state.progress;
+      const aktif = parseInt(state.settings.pertemuan_aktif);
+
+      // Update Card Progress & Locking
+      updateCard('Pretest', p.pretest_done, aktif >= 1);
+      updateCard('CBT', p.cbt_stage_5_done, p.pretest_done && aktif >= 2, `${p.current_stage || 0}/5 Selesai`);
+
+      let postStatus = '';
+      if (p.posttest_done && !p.respon_media_done) postStatus = 'Post-Test Selesai';
+      else if (p.posttest_done && p.respon_media_done) postStatus = 'Selesai';
+      updateCard('Posttest', p.posttest_done && p.respon_media_done, p.cbt_stage_5_done && aktif >= 4, postStatus);
+
+      // Actually navigate to the dashboard page
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('aktif'));
+      const dPage = document.getElementById('h_dashboard');
+      if (dPage) dPage.classList.add('aktif');
+    }
+
+    // --- Math Rendering Helper ---
+    function renderMath(element) {
+      if (window.renderMathInElement && element) {
+        window.renderMathInElement(element, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true }
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    function updateCard(type, isDone, isUnlocked, extra = '') {
+      const card = document.getElementById('card' + type);
+      const lock = document.getElementById('lock' + type);
+      const check = document.getElementById('check' + type);
+      const badge = document.getElementById('badge' + type);
+      const progress = document.getElementById('progress' + type);
+
+      if (isDone) {
+        card.className = 'menu-card done';
+        if (check) check.classList.remove('hidden');
+        if (lock) lock.classList.add('hidden');
+        if (badge) badge.classList.add('hidden');
+      } else if (!isUnlocked) {
+        card.className = 'menu-card locked';
+        if (check) check.classList.add('hidden');
+        if (lock) lock.classList.remove('hidden');
+        if (badge) badge.classList.remove('hidden');
+      } else {
+        card.className = 'menu-card';
+        if (check) check.classList.add('hidden');
+        if (lock) lock.classList.add('hidden');
+        if (badge) badge.classList.add('hidden');
+      }
+      if (progress) progress.textContent = extra;
+    }
+
+    function aksesMateri(tipe) {
+      const p = state.progress;
+      const aktif = parseInt(state.settings.pertemuan_aktif);
+
+      if (tipe === 'pretest') {
+        if (aktif < 1) return tampilModal('🔒', 'Belum Waktunya', 'Pertemuan pertama belum dibuka oleh gurumu.', '<button class="btn btn-utama btn-full" onclick="tutupModal()">Tutup</button>');
+        if (p.pretest_done) return tampilModal('✅', 'Sudah Selesai', 'Kamu sudah mengerjakan Pre-Test.', '<button class="btn btn-utama btn-full" onclick="tutupModal()">Tutup</button>');
+        keHalaman('h2');
+
+      } else if (tipe === 'cbt') {
+        if (!p.pretest_done) return tampilModal('🔒', 'Selesaikan Dulu', 'Kamu harus menyelesaikan Pre-Test terlebih dahulu.', '<button class="btn btn-utama btn-full" onclick="tutupModal()">Tutup</button>');
+        if (aktif < 2) return tampilModal('🔒', 'Sabar Ya', 'Program CBT baru dibuka pada Pertemuan 2.', '<button class="btn btn-utama btn-full" onclick="tutupModal()">Tutup</button>');
+
+        // Resume/Start CBT dengan gate meeting
+        const stage = p.current_stage || 0;
+        if (stage <= 0) {
+          keHalaman('h4'); // Mulai dari Tahap 1
+        } else if (stage === 1) {
+          keHalaman('h5'); // Tahap 1 selesai → lanjut Tahap 2
+        } else if (stage === 2) {
+          keHalaman('h6'); // Tahap 2 selesai → lanjut Tahap 3
+        } else if (stage === 3) {
+          // Tahap 1-3 selesai → butuh Pertemuan 3 untuk Tahap 4-5
+          if (aktif < 3) return tampilModal('🔒', 'Sabar Ya', 'Tahap 4 dan 5 akan dibuka pada Pertemuan 3. Tahap 1–3 sudah kamu selesaikan dengan baik!', '<button class="btn btn-utama btn-full" onclick="tutupModal()">Tutup</button>');
+          keHalaman('h7'); // Lanjut Tahap 4
+        } else if (stage === 4) {
+          keHalaman('h8'); // Tahap 4 selesai → lanjut Tahap 5
+        } else {
+          // Semua CBT selesai
+          tampilModal('✅', 'CBT Selesai!', 'Kamu sudah menyelesaikan semua tahap CBT. Tunggu instruksi gurumu untuk membuka Post-Test.', '<button class="btn btn-utama btn-full" onclick="tutupModal()">Tutup</button>');
+        }
+
+      } else if (tipe === 'posttest') {
+        if (!p.cbt_stage_5_done) return tampilModal('🔒', 'Belum Saatnya', 'Kamu harus menyelesaikan semua tahap CBT dulu.', '<button class="btn btn-utama btn-full" onclick="tutupModal()">Tutup</button>');
+        if (aktif < 4) return tampilModal('🔒', 'Tunggu Instruksi', 'Post-Test dan Angket Respon Media baru dibuka pada Pertemuan 4.', '<button class="btn btn-utama btn-full" onclick="tutupModal()">Tutup</button>');
+        if (p.respon_media_done) keHalaman('h10');
+        else if (p.posttest_done) keHalaman('h_respon_media');
+        else keHalaman('h9');
+      }
+    }
+
+    async function saveProgress(newData = {}) {
+      try {
+        console.log('Menyimpan data ke Supabase:', newData);
+        const { error } = await supabaseClient
+          .from('student_data')
+          .update({ ...newData, updated_at: new Date().toISOString() })
+          .eq('user_id', state.user.id);
+
+        if (error) throw error;
+        console.log('Berhasil simpan!');
+      } catch (err) {
+        console.error('Gagal simpan progress:', err);
+        tampilModal('❌', 'Gagal Simpan', 'Terjadi kesalahan saat menyimpan progres ke database: ' + err.message, '<button class="btn btn-utama btn-full" onclick="tutupModal()">Tutup</button>');
+        throw err;
+      }
     }
 
     // ══ ANGKET ══
@@ -2071,7 +2596,7 @@
         div.id = 'item_' + prefix + item.id;
         div.innerHTML = `
       <div class="angket-nomor">${prefix === 'k' ? 'Kecemasan' : 'Motivasi'} No. ${i + 1} • ${item.dimensi}</div>
-      <div class="angket-pertanyaan">${item.teks}</div>
+      <div class="angket-pertanyaan">${item.text}</div>
       <div class="angket-opsi">
         ${opsiAngket.map(o => `<button class="opsi-btn ${jawaban[item.id] === o ? 'aktif' : ''}" onclick="jawabAngket('${item.id}','${o}','${prefix}',this,'${kontainerId}')">${o}</button>`).join('')}
       </div>
@@ -2084,19 +2609,189 @@
       if (mode === 'pre') {
         bangunAngketItems(angketKecemasanData, 'angketKecemasan', 'k', state.preKecemasan, updateHitungPre);
         bangunAngketItems(angketMotivasiData, 'angketMotivasi', 'm', state.preMotivasi, updateHitungPre);
+        updateHitungPre();
       } else {
         bangunAngketItems(angketKecemasanData, 'angketKecemasanPost', 'k', state.postKecemasan, updateHitungPost);
         bangunAngketItems(angketMotivasiData, 'angketMotivasiPost', 'm', state.postMotivasi, updateHitungPost);
+        updateHitungPost();
       }
     }
 
+    async function prosesPreTest() {
+      const expected = angketKecemasanData.length + angketMotivasiData.length;
+      const total = Object.keys(state.preKecemasan).length + Object.keys(state.preMotivasi).length;
+      if (total < expected) {
+        tampilModal('⚠️', 'Belum Lengkap', `Kamu baru menjawab ${total} dari ${expected} pertanyaan. Lengkapi semua dulu ya.`, '<button class="btn btn-utama btn-full" onclick="tutupModal()">Oke, Lanjutkan</button>');
+        return;
+      }
+
+      const skorK = hitungSkorKecemasan(state.preKecemasan);
+      const skorM = hitungSkorMotivasi(state.preMotivasi);
+      const lvK = levelKecemasan(skorK);
+      const lvM = levelMotivasi(skorM);
+      const kDimensi = hitungSkorPerDimensi(state.preKecemasan, angketKecemasanData);
+      const mDimensi = hitungSkorPerDimensi(state.preMotivasi, angketMotivasiData);
+
+      // UI Prep for h3 (Result Page) before modal
+      document.getElementById('diagnosaKecemasan').innerHTML = `
+            <div class="diagnosa-box ${lvK.kelas}">
+                <span class="diagnosa-emoji">${lvK.emoji}</span>
+                <div class="diagnosa-level">Kecemasan Matematis: ${lvK.level}</div>
+                <div class="diagnosa-skor">Skor: ${skorK} dari 60</div>
+                <div class="diagnosa-desc">${deskripsKecemasan(lvK.level)}</div>
+                <hr style="opacity:0.2; margin:15px 0">
+                <div id="chartPreK"></div>
+            </div>`;
+      document.getElementById('diagnosaMotivasi').innerHTML = `
+            <div class="diagnosa-box ${lvM.kelas}">
+                <span class="diagnosa-emoji">${lvM.emoji}</span>
+                <div class="diagnosa-level">Motivasi Intrinsik: ${lvM.level}</div>
+                <div class="diagnosa-skor: Skor: ${skorM} dari 80</div>
+                <div class="diagnosa-desc">${deskripsiMotivasi(lvM.level)}</div>
+                <hr style="opacity:0.2; margin:15px 0">
+                <div id="chartPreM"></div>
+            </div>`;
+
+      try {
+        state.progress.pretest_done = true;
+        const allPreAnswers = { ...state.preKecemasan, ...state.preMotivasi };
+
+        await saveProgress({
+          pretest_done: true,
+          jawaban_pre: allPreAnswers,
+          skor_pre_kecemasan: skorK,
+          skor_pre_motivasi: skorM,
+          detil_dimensi: { preK_dim: kDimensi, preM_dim: mDimensi },
+          current_meeting: 1,
+          current_stage: 0
+        });
+
+        const aiPesan = generateAIDiagnosis(kDimensi, mDimensi);
+        document.getElementById('statPreTest').innerHTML = `
+                <div class="stat-box" style="grid-column: span 3; padding: 15px; text-align: left;">
+                    <div class="lbl" style="font-weight:800; color:var(--primary); margin-bottom:5px;">Hasil Analisis</div>
+                    <div style="font-size:0.85rem; line-height:1.6; color:var(--text-2);">${aiPesan}</div>
+                </div>`;
+
+        tampilModal('✅', 'Pre-Test Terkirim', 'Analisis kamu sudah siap. Silakan lihat hasil diagnosa awalmu.',
+          `<button class="btn btn-utama btn-full" onclick='tutupModal(); keHalaman("h3"); setTimeout(() => { renderPieChart("chartPreK", ${JSON.stringify(kDimensi)}, ["#E76F51", "#F4A68A", "#E9C46A"]); renderPieChart("chartPreM", ${JSON.stringify(mDimensi)}, ["#2D6A4F", "#95C4AA", "#457B9D", "#A8C8DC"]); }, 100)'>Lihat Hasil →</button>`);
+      } catch (err) {
+        tampilModal('❌', 'Gagal Simpan', err.message, '<button class="btn btn-utama btn-full" onclick="tutupModal()">Tutup</button>');
+      }
+    }
+
+    async function prosesCBT(stage) {
+      try {
+        const update = { current_stage: stage };
+        if (stage === 1) { update.emosi_awal = state.emosiAwalNama; update.cbt_stage_1_done = true; }
+        if (stage === 2) { update.pikiran_dipilih = state.pikiranDipilih; update.cbt_stage_2_done = true; }
+        if (stage === 3) { update.afirmasi_dipilih = state.afirmasiDipilih; update.cbt_stage_3_done = true; }
+        if (stage === 4) { update.cbt_stage_4_done = true; update.skor_kuis = Math.round((state.soalBenar / soalData.length) * 100) || 0; }
+        if (stage === 5) {
+          update.cbt_stage_5_done = true;
+          update.emosi_akhir = state.emosiAkhirNama;
+        }
+
+        state.progress.current_stage = stage;
+        if (stage >= 1) state.progress.cbt_stage_1_done = true;
+        if (stage >= 2) state.progress.cbt_stage_2_done = true;
+        if (stage >= 3) state.progress.cbt_stage_3_done = true;
+        if (stage >= 4) state.progress.cbt_stage_4_done = true;
+        if (stage === 5) state.progress.cbt_stage_5_done = true;
+
+        await saveProgress(update);
+
+        if (stage === 5) {
+          tampilModal('🎉', 'Selesai!', 'Kamu telah menyelesaikan semua tahap CBT hari ini.', '<button class="btn btn-utama btn-full" onclick="tutupModal(); keDashboard()">Ke Dashboard →</button>');
+        } else {
+          if (stage === 3 && parseInt(state.settings.pertemuan_aktif) < 3) {
+            tampilModal('🔒', 'Batas Pertemuan', 'Tahap 1-3 selesai untuk Pertemuan 2. Tahap 4-5 akan dibuka pada Pertemuan 3.', '<button class="btn btn-utama btn-full" onclick="tutupModal(); keDashboard()">Kembali ke Dashboard</button>');
+            return;
+          }
+          keHalaman('h' + (stage + 4));
+        }
+      } catch (err) {
+        tampilModal('❌', 'Gagal Simpan', err.message);
+      }
+    }
+
+    async function prosesPostTest() {
+      try {
+        console.log('Memulai proses Post-Test...');
+        const skorK = hitungSkorKecemasan(state.postKecemasan) || 0;
+        const skorM = hitungSkorMotivasi(state.postMotivasi) || 0;
+        const allPostAnswers = { ...state.postKecemasan, ...state.postMotivasi };
+
+        // Local state update first
+        state.progress.posttest_done = true;
+
+        await saveProgress({
+          posttest_done: true,
+          jawaban_post: allPostAnswers,
+          skor_post_kecemasan: skorK,
+          skor_post_motivasi: skorM
+        });
+
+        tampilModal('✅', 'Berhasil Simpan', `Jawaban Post-Test tersimpan. Data terdeteksi: ${Object.keys(allPostAnswers).length} jawaban. Lanjut ke Angket Respon Media.`,
+          '<button class="btn btn-utama btn-full" onclick="tutupModal(); keHalaman(\'h_respon_media\')">Lanjut Sekarang →</button>');
+      } catch (err) {
+        console.error('ProsesPostTest error:', err);
+        tampilModal('❌', 'Gagal Simpan', 'Data Post-Test gagal dikirim: ' + err.message, '<button class="btn btn-utama btn-full" onclick="tutupModal()">Tutup</button>');
+      }
+    }
+
+    function bangunAngketRespon() {
+      const el = document.getElementById('angketResponMedia');
+      if (angketResponMediaData.length === 0) {
+        el.innerHTML = '<div class="info merah">⚠️ Gagal memuat data angket respon media. Silakan coba muat ulang halaman (F5).</div>';
+        return;
+      }
+      el.innerHTML = '';
+      angketResponMediaData.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'angket-item';
+        div.innerHTML = `
+                <div class="angket-nomor">Pertanyaan ${i + 1} • ${item.dimensi}</div>
+                <div class="angket-pertanyaan">${item.text}</div>
+                <div class="angket-opsi">
+                    ${opsiAngket.map(o => `<button class="opsi-btn ${state.jawabanResponMedia[item.id] === o ? 'aktif' : ''}" onclick="jawabResponMedia('${item.id}','${o}',this)">${o}</button>`).join('')}
+                </div>
+            `;
+        el.appendChild(div);
+      });
+    }
+
+    function jawabResponMedia(id, opsi, btn) {
+      btn.closest('.angket-opsi').querySelectorAll('.opsi-btn').forEach(b => b.classList.remove('aktif'));
+      btn.classList.add('aktif');
+      state.jawabanResponMedia[id] = opsi;
+    }
+
+    async function prosesResponMedia() {
+      const total = Object.keys(state.jawabanResponMedia).length;
+      if (total < angketResponMediaData.length) {
+        return tampilModal('⚠️', 'Belum Lengkap', `Kamu baru menjawab ${total} dari ${angketResponMediaData.length} pertanyaan respon media.`, '<button class="btn btn-utama btn-full" onclick="tutupModal()">Oke</button>');
+      }
+      try {
+        state.progress.respon_media_done = true;
+        await saveProgress({
+          respon_media_done: true,
+          jawaban_respon_media: state.jawabanResponMedia
+        });
+        keHalaman('h10');
+      } catch (err) {
+        tampilModal('❌', 'Gagal Simpan', err.message);
+      }
+    }
+
+    // ══ ANGKET ══
     function jawabAngket(id, opsi, prefix, btn, kontainerId) {
       btn.closest('.angket-opsi').querySelectorAll('.opsi-btn').forEach(b => b.classList.remove('aktif'));
       btn.classList.add('aktif');
       btn.closest('.angket-item').classList.add('dijawab');
 
       const isPost = kontainerId.includes('Post');
-      if (id.startsWith('k')) {
+      if (prefix === 'k') {
         if (isPost) state.postKecemasan[id] = opsi;
         else state.preKecemasan[id] = opsi;
       } else {
@@ -2109,19 +2804,35 @@
     }
 
     function updateHitungPre() {
-      const total = Object.keys(state.preKecemasan).length + Object.keys(state.preMotivasi).length;
+      const k = Object.keys(state.preKecemasan).length;
+      const m = Object.keys(state.preMotivasi).length;
+      const total = k + m;
+      const expected = angketKecemasanData.length + angketMotivasiData.length;
+
       document.getElementById('hitungAngket').textContent = total;
       const btn = document.getElementById('btnPreTest');
-      if (total === 35) { btn.classList.remove('nonaktif'); }
-      else { btn.classList.add('nonaktif'); }
+
+      if (total >= expected && expected > 0) {
+        btn.classList.remove('nonaktif');
+      } else {
+        btn.classList.add('nonaktif');
+      }
     }
 
     function updateHitungPost() {
-      const total = Object.keys(state.postKecemasan).length + Object.keys(state.postMotivasi).length;
+      const k = Object.keys(state.postKecemasan).length;
+      const m = Object.keys(state.postMotivasi).length;
+      const total = k + m;
+      const expected = angketKecemasanData.length + angketMotivasiData.length;
+
       document.getElementById('hitungAngketPost').textContent = total;
       const btn = document.getElementById('btnPostTest');
-      if (total === 35) { btn.classList.remove('nonaktif'); }
-      else { btn.classList.add('nonaktif'); }
+
+      if (total >= expected && expected > 0) {
+        btn.classList.remove('nonaktif');
+      } else {
+        btn.classList.add('nonaktif');
+      }
     }
 
     // ══ HITUNG SKOR ══
@@ -2132,7 +2843,7 @@
         if (!opsi) return;
         const raw = nilaiOpsi[opsi];
         // item positif: skor lebih tinggi = kecemasan lebih rendah → dibalik
-        total += item.positif ? (5 - raw) : raw;
+        total += item.is_positive ? (5 - raw) : raw;
       });
       return total; // max: 60, min: 15
     }
@@ -2143,7 +2854,7 @@
         const opsi = jawaban[item.id];
         if (!opsi) return;
         const raw = nilaiOpsi[opsi];
-        total += item.positif ? raw : (5 - raw);
+        total += item.is_positive ? raw : (5 - raw);
       });
       return total; // max: 80, min: 20
     }
@@ -2191,9 +2902,9 @@
 
         // Jika data adalah kecemasan
         if (data === angketKecemasanData) {
-          result[item.dimensi].skor += item.positif ? (5 - raw) : raw;
+          result[item.dimensi].skor += item.is_positive ? (5 - raw) : raw;
         } else {
-          result[item.dimensi].skor += item.positif ? raw : (5 - raw);
+          result[item.dimensi].skor += item.is_positive ? raw : (5 - raw);
         }
         result[item.dimensi].max += 4;
         result[item.dimensi].count++;
@@ -2202,36 +2913,48 @@
     }
 
     function generateAIDiagnosis(kDimensi, mDimensi) {
-      let kMaxDim = '', kMaxPct = -1;
-      for (let d in kDimensi) {
+      // 1. Find dominant factors
+      let kWorstDim = '', kWorstScore = -1;
+      for (const d in kDimensi) {
         const pct = (kDimensi[d].skor / kDimensi[d].max) * 100;
-        if (pct > kMaxPct) { kMaxPct = pct; kMaxDim = d; }
+        if (pct > kWorstScore) { kWorstScore = pct; kWorstDim = d; }
       }
 
-      let mMaxDim = '', mMaxPct = -1;
-      for (let d in mDimensi) {
+      let mBestDim = '', mBestScore = -1;
+      for (const d in mDimensi) {
         const pct = (mDimensi[d].skor / mDimensi[d].max) * 100;
-        if (pct > mMaxPct) { mMaxPct = pct; mMaxDim = d; }
+        if (pct > mBestScore) { mBestScore = pct; mBestDim = d; }
       }
 
-      let pesan = `Berdasarkan analisis sistem, tantangan utama Anda saat ini berada pada aspek ${kMaxDim}. `;
+      // 2. Personalized Narratives based on dimensions
+      const kPesan = {
+        'Pikiran Negatif': `Tantangan terbesarmu saat ini adalah munculnya pikiran-pikiran negatif yang menghambat potensi belajarmu. Hal ini wajar, dan melalui CBT kita akan belajar "menantang" pikiran tersebut agar tidak lagi memberatkanmu.`,
+        'Ketegangan': `Kamu sering merasakan ketegangan fisik atau kekakuan saat menghadapi soal sulit. Melalui tahap Relaksasi nanti, kita akan belajar cara menenangkan tubuh agar pikiran tetap jernih.`,
+        'Kekhawatiran': `Kekhawatiran akan hasil akhir seringkali membuatmu ragu melangkah. Padahal, setiap kesalahan adalah bagian dari proses belajar yang sangat berharga.`,
+        'Rasa Rendah Diri': `Kamu cenderung membandingkan dirimu dengan orang lain. Melalui program ini, kita akan fokus pada perkembangan dirimu sendiri karena setiap orang punya kecepatan belajarnya masing-masing.`
+      };
 
-      if (kMaxPct > 70) {
-        pesan += `Pola pikir Anda cenderung terfokus pada hal-hal yang kurang produktif sehingga menguras energi mental Anda. `;
-      } else if (kMaxPct > 40) {
-        pesan += `Anda memiliki tingkat kewaspadaan yang cukup tinggi namun masih dalam batas yang dapat dikelola saat berhadapan dengan matematika. `;
-      } else {
-        pesan += `Tingkat kecemasan Anda relatif terkendali, yang merupakan modal dasar yang sangat baik untuk pengembangan diri Anda ke depan. `;
+      const mPesan = {
+        'Ketertarikan': `Kekuatan utamamu adalah rasa ingin tahu yang besar. Ketertarikan ini adalah "bahan bakar" terbaik yang akan membuat setiap tantangan terasa seperti petualangan.`,
+        'Kekuatan Diri': `Kamu memiliki keyakinan yang kuat pada kemampuanmu. Gunakan rasa percaya diri ini untuk menaklukkan soal-soal matematika yang lebih kompleks secara bertahap.`,
+        'Kemauan': `Kemauanmu untuk terus mencoba meski sulit adalah aset yang luar biasa. Ketangguhan ini jauh lebih penting daripada sekadar mendapatkan nilai bagus.`,
+        'Kenikmatan': `Kamu mulai bisa menikmati proses belajar. Pertahankan rasa senang ini agar matematika tidak lagi menjadi beban, melainkan sarana asah otak yang menyenangkan.`
+      };
+
+      // 3. Assemble dynamic feedback
+      let intro = "Berdasarkan hasil analisis mendalam, ";
+      let kPart = kPesan[kWorstDim] || `Tantangan utamamu terkait dengan ${kWorstDim.toLowerCase()}. Kita akan fokus memperbaikinya di sesi CBT nanti.`;
+      let mPart = mPesan[mBestDim] || `Kekuatanmu ada pada ${mBestDim.toLowerCase()}, gunakan ini sebagai modal untuk tetap semangat.`;
+
+      // 4. Intensity Modifier
+      let advice = "";
+      if (kWorstScore > 75) {
+        advice = " Jangan berkecil hati, banyak siswa juga merasakan hal yang sama. Program 5 tahap ini dirancang khusus untuk kondisi seperti yang kamu alami saat ini.";
+      } else if (kWorstScore < 40) {
+        advice = " Kondisimu saat ini tergolong stabil, namun tetaplah ikuti program ini untuk memperkuat mentalmu menghadapi ujian kedepan.";
       }
 
-      pesan += `Di sisi lain, kekuatan utama yang Anda miliki terletak pada aspek ${mMaxDim}. `;
-      if (mMaxPct > 70) {
-        pesan += `Semangat belajar Anda sangat tinggi, dan ini akan menjadi mesin penggerak utama dalam setiap proses pembelajaran yang Anda lalui. `;
-      } else {
-        pesan += `Melalui program CBT ini, kita akan berusaha untuk kembali menumbuhkan rasa ketertarikan serta kenyamanan Anda dalam mempelajari konsep-konsep matematika. `;
-      }
-
-      return pesan;
+      return `${intro} ${kPart} ${mPart} ${advice}`;
     }
 
     function renderPieChart(containerId, dimensiScores, colors) {
@@ -2273,54 +2996,6 @@
       container.appendChild(chartWrapper);
     }
 
-    // ══ PROSES PRE TEST ══
-    function prosesPreTest() {
-      const skorK = hitungSkorKecemasan(state.preKecemasan);
-      const skorM = hitungSkorMotivasi(state.preMotivasi);
-      const lvK = levelKecemasan(skorK);
-      const lvM = levelMotivasi(skorM);
-
-      const kDimensi = hitungSkorPerDimensi(state.preKecemasan, angketKecemasanData);
-      const mDimensi = hitungSkorPerDimensi(state.preMotivasi, angketMotivasiData);
-
-      const elK = document.getElementById('diagnosaKecemasan');
-      elK.innerHTML = `
-    <div class="diagnosa-box ${lvK.kelas}">
-      <span class="diagnosa-emoji">${lvK.emoji}</span>
-      <div class="diagnosa-level">Kecemasan Matematis: ${lvK.level}</div>
-      <div class="diagnosa-skor">Skor: ${skorK} dari 60</div>
-      <div class="diagnosa-desc">${deskripsKecemasan(lvK.level)}</div>
-      <hr style="opacity:0.2; margin:15px 0">
-      <div id="chartPreK"></div>
-    </div>
-  `;
-
-      const elM = document.getElementById('diagnosaMotivasi');
-      elM.innerHTML = `
-    <div class="diagnosa-box ${lvM.kelas}">
-      <span class="diagnosa-emoji">${lvM.emoji}</span>
-      <div class="diagnosa-level">Motivasi Intrinsik: ${lvM.level}</div>
-      <div class="diagnosa-skor">Skor: ${skorM} dari 80</div>
-      <div class="diagnosa-desc">${deskripsiMotivasi(lvM.level)}</div>
-      <hr style="opacity:0.2; margin:15px 0">
-      <div id="chartPreM"></div>
-    </div>
-  `;
-
-      renderPieChart('chartPreK', kDimensi, ['#E76F51', '#F4A68A', '#E9C46A']);
-      renderPieChart('chartPreM', mDimensi, ['#2D6A4F', '#95C4AA', '#457B9D', '#A8C8DC']);
-
-      const aiPesan = generateAIDiagnosis(kDimensi, mDimensi);
-
-      document.getElementById('statPreTest').innerHTML = `
-    <div class="stat-box" style="grid-column: span 3; padding: 15px; text-align: left;">
-      <div class="lbl" style="font-weight:800; color:var(--primary); margin-bottom:5px;">hasil analisis</div>
-      <div style="font-size:0.85rem; line-height:1.6; color:var(--text-2);">${aiPesan}</div>
-    </div>
-  `;
-
-      keHalaman(3);
-    }
 
     function deskripsKecemasan(level) {
       if (level === 'Tinggi') return 'Anda mengalami kecemasan matematis yang cukup signifikan. Program CBT ini akan sangat membantu Anda mengelola rasa takut dan khawatir terhadap matematika.';
@@ -2359,25 +3034,23 @@
 
       areaA.innerHTML = ''; areaB.innerHTML = ''; areaC.innerHTML = '';
 
-      const data = pikiranData[state.emosiState || 'cemas'];
+      // Determine category based on anxiety score
+      const skorK = hitungSkorKecemasan(state.preKecemasan);
+      let cat = 'percaya';
+      if (skorK >= 46) cat = 'cemas';
+      else if (skorK >= 31) cat = 'netral';
+
+      const content = cbtStagesContent[2]?.content_json;
+      if (!content || !content.categories) return;
+
+      const data = content.categories[cat];
 
       // Render Kategori A
-      data.A.forEach(item => {
-        const div = renderPikiranItem(item);
-        areaA.appendChild(div);
-      });
-
+      data.A.forEach(item => { areaA.appendChild(renderPikiranItem(item)); });
       // Render Kategori B
-      data.B.forEach(item => {
-        const div = renderPikiranItem(item);
-        areaB.appendChild(div);
-      });
-
+      data.B.forEach(item => { areaB.appendChild(renderPikiranItem(item)); });
       // Render Kategori C
-      data.C.forEach(item => {
-        const div = renderPikiranItem(item);
-        areaC.appendChild(div);
-      });
+      data.C.forEach(item => { areaC.appendChild(renderPikiranItem(item)); });
 
       document.getElementById('infoPikiran').textContent = 'Pilih pikiran yang paling sesuai dengan kondisimu.';
       document.getElementById('btnTahap2').classList.add('nonaktif');
@@ -2414,7 +3087,7 @@
     function bangunReframe() {
       const grid = document.getElementById('tabelReframe');
       grid.innerHTML = '';
-      const list = state.pikiranDipilih.length ? state.pikiranDipilih : [pikiranData.A[0]];
+      const list = state.pikiranDipilih;
       list.forEach((item, i) => {
         const row = document.createElement('div');
         row.className = 'reframe-item';
@@ -2472,11 +3145,12 @@
     <div class="soal-opsi-list">
       ${s.opsi.map((o, i) => `
         <div class="soal-opsi" id="op${i}" onclick="jawabSoal(${i},${s.jawaban})">
-          <div class="opsi-huruf">${String.fromCharCode(65 + i)}</div>${o}
+          <div class="opsi-huruf">${String.fromCharCode(65 + i)}</div>${(o.includes('^') || o.includes('\\')) && !o.startsWith('$') ? `$${o}$` : o}
         </div>`).join('')}
     </div>
     <div class="soal-feedback" id="fbSoal"></div>
   `;
+      renderMath(document.getElementById('areaSoal'));
     }
 
     function jawabSoal(dipilih, benar) {
@@ -2489,7 +3163,8 @@
       document.getElementById('skorSoal').textContent = '⭐ Benar: ' + benarLokal;
       const fb = document.getElementById('fbSoal');
       fb.className = 'soal-feedback tampil ' + (dipilih === benar ? 'ok' : 'err');
-      fb.textContent = (dipilih === benar ? '✅ Benar! ' : '❌ ') + soalData[soalKe].penjelasan;
+      fb.innerHTML = (dipilih === benar ? '✅ Benar! ' : '❌ ') + soalData[soalKe].penjelasan;
+      renderMath(fb);
       if (soalKe < soalData.length - 1) document.getElementById('tombolSoalBerikut').style.display = 'block';
       else setTimeout(selesaiSoal, 1200);
     }
@@ -2524,7 +3199,7 @@
       const daftar = document.getElementById('daftarAfirmasi');
       const afirmasiList = state.pikiranDipilih.length
         ? state.pikiranDipilih.map(p => p.reframe)
-        : ['Aku bisa belajar matematika langkah demi langkah.', 'Salah adalah bagian dari belajar.', 'Kecerdasan bisa dilatih dengan usaha.'];
+        : ['Aku bisa belajar matematika langkah demi langkah.'];
 
       daftar.innerHTML = afirmasiList.map((a, i) => `
     <div class="afirmasi-item" style="animation-delay:${i * .1}s">
@@ -2608,11 +3283,6 @@
       if (state.emosiAkhir) document.getElementById('btnTahap5').classList.remove('nonaktif');
     }
 
-    // ══ POST TEST ══
-    function prosesPostTest() {
-      keHalaman(10);
-    }
-
     // ══ HASIL AKHIR ══
     function bangunHasil() {
       const preK = hitungSkorKecemasan(state.preKecemasan);
@@ -2694,7 +3364,7 @@
       const postMDimensi = hitungSkorPerDimensi(state.postMotivasi, angketMotivasiData);
 
       const targetDimensiK = Object.keys(postKDimensi).reduce((a, b) => (postKDimensi[a].skor / postKDimensi[a].max) < (postKDimensi[b].skor / postKDimensi[b].max) ? a : b);
-      
+
       // Dynamic Paragraph Generation
       let paragraf1 = `Selamat atas keberhasilan Anda menyelesaikan seluruh rangkaian program Cognitive Behavioral Therapy (CBT) Digital MathEase. `;
       if (selisihK > 0) {
@@ -2715,7 +3385,7 @@
       } else {
         paragraf2 += `terdapat dinamika emosi dari "${state.emosiAwalNama}" ke "${state.emosiAkhirNama}" yang menunjukkan bahwa Anda sedang berada dalam fase penyesuaian kognitif. `;
       }
-      
+
       paragraf2 += `Terkait motivasi intrinsik, `;
       if (selisihM > 0) {
         paragraf2 += `tercatat peningkatan skor sebesar ${selisihM} poin. Kombinasi antara ${selisihK > 0 ? 'penurunan kecemasan' : 'pengenalan kecemasan'} dan peningkatan motivasi ini merupakan indikator kuat bahwa strategi pengelolaan emosi mulai berdampak pada semangat belajar Anda dari dalam. `;
@@ -2784,56 +3454,48 @@
 
       if (selisihK > 0) { tembakKonfetiMeriah(); }
 
-      // Simpan ke Supabase
-      simpanKeSupabase({
-        nama: state.identitas.nama,
-        kelas: state.identitas.kelas,
-        sekolah: state.identitas.sekolah,
+      // Save to Supabase
+      saveProgress({
         skor_pre_kecemasan: preK,
         skor_post_kecemasan: postK,
         skor_pre_motivasi: preM,
         skor_post_motivasi: postM,
-        emosi_awal: state.emosiAwalNama,
-        emosi_akhir: state.emosiAkhirNama,
         skor_kuis: pctSoal,
-        detil_dimensi: { preK_dim: hitungSkorPerDimensi(state.preKecemasan, angketKecemasanData), postK_dim: postKDimensi },
-        jawaban_pre: { kecemasan: state.preKecemasan, motivasi: state.preMotivasi },
-        jawaban_post: { kecemasan: state.postKecemasan, motivasi: state.postMotivasi },
-        pikiran_dipilih: state.pikiranDipilih,
-        afirmasi_dipilih: state.afirmasiDipilih
+        detil_dimensi: {
+          preK_dim: hitungSkorPerDimensi(state.preKecemasan, angketKecemasanData),
+          preM_dim: hitungSkorPerDimensi(state.preMotivasi, angketMotivasiData),
+          postK_dim: postKDimensi,
+          postM_dim: postMDimensi
+        },
       });
 
       tampilModal(
         selisihK > 0 ? '🌟' : '💪',
         selisihK > 0 ? 'Perkembangan Positif!' : 'Selesai!',
         selisihK > 0
-          ? `Luar biasa, ${state.identitas.nama}! Kecemasan Anda menurun ${selisihK} poin. Pertahankan pola pikir positif ini.`
+          ? `Luar biasa, ${state.user.nama}! Kecemasan Anda menurun ${selisihK} poin. Pertahankan pola pikir positif ini.`
           : `Terima kasih sudah menyelesaikan program ini. Teruslah berlatih teknik relaksasi 4-7-8 setiap kali Anda merasa cemas.`,
         `<button class="btn btn-hijau btn-full" onclick="tutupModal()">Lihat Analisis Lengkap</button>`
       );
+
+      renderMath(diagnosaEl);
+      renderMath(document.getElementById('perbandinganKecemasan'));
+      renderMath(document.getElementById('perbandinganMotivasi'));
     }
 
-    async function simpanKeSupabase(data) {
-      if(!supabaseClient) return;
-      try {
-        const { error } = await supabaseClient
-          .from('cbt_results')
-          .insert([data]);
-        
-        if (error) console.error("Supabase Error:", error);
-        else console.log("Data berhasil disimpan ke Supabase");
-      } catch (err) {
-        console.error("Gagal request Supabase:", err);
-      }
-    }
+    // ══ INITIALIZATION ══
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSession();
+    });
 
     // ══ MODAL ══
-    function tampilModal(ikon, judul, pesan, tombolHtml) {
+    function tampilModal(ikon, judul, pesan, tombolHtml = '') {
       document.getElementById('modalIkon').textContent = ikon;
-      document.getElementById('modalJudul').textContent = judul;
-      document.getElementById('modalPesan').textContent = pesan;
+      document.getElementById('modalJudul').innerHTML = judul;
+      document.getElementById('modalPesan').innerHTML = pesan;
       document.getElementById('modalTombol').innerHTML = tombolHtml;
       document.getElementById('modal').classList.remove('sembunyikan');
+      renderMath(document.getElementById('modal'));
     }
     function tutupModal() { document.getElementById('modal').classList.add('sembunyikan'); }
 
@@ -2878,27 +3540,6 @@
     function tembakKonfetiMeriah() {
       for (let i = 0; i < 5; i++) setTimeout(() => tembakKonfeti(30), i * 300);
     }
-
-    // ══ MULAI ULANG ══
-    function mulaiUlang() {
-      Object.assign(state, {
-        identitas: {}, preKecemasan: {}, preMotivasi: {},
-        postKecemasan: {}, postMotivasi: {},
-        emosiAwal: null, emosiAwalNama: null, emosiState: null,
-        emosiAkhir: null, emosiAkhirNama: null,
-        pikiranDipilih: [], afirmasiDipilih: null,
-        soalBenar: 0, nafasSelesai: false,
-      });
-      document.querySelectorAll('.form-input').forEach(i => i.value = '');
-      if (nafasInterval) clearInterval(nafasInterval);
-      keHalaman(0);
-    }
-
-    // ══ SET TANGGAL DEFAULT ══
-    document.getElementById('fTanggal').valueAsDate = new Date();
-
-    // INIT
-    keHalaman(0);
   </script>
 </body>
 
